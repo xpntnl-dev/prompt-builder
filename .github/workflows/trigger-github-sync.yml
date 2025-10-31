@@ -15,7 +15,7 @@ jobs:
       - name: Trigger GitHub Sync (Delta Mode)
         run: |
           curl --request POST \
-            --url 'https://YOUR_PROJECT.supabase.co/functions/v1/github-sync' \
+            --url 'https://pkqnzavfwlctgjwwrpts.supabase.co/functions/v1/github-sync' \
             --header 'Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}' \
             --header 'Content-Type: application/json' \
             --data '{"mode": "delta"}' \
