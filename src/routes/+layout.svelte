@@ -16,8 +16,8 @@
 	<aside class="w-64 bg-white border-r border-gray-200 flex flex-col">
 		<!-- Logo/Header -->
 		<div class="p-6 border-b border-gray-200">
-			<h1 class="text-xl font-bold text-gray-900">RVKCAT</h1>
-			<p class="text-sm text-gray-500">Prompt Builder</p>
+			<h1 class="text-xl font-bold text-gray-900">EUROPA 🤖</h1>
+			<p class="text-sm text-gray-500">LLM AGENT COMMAND HQ</p>
 		</div>
 
 		<!-- Navigation Links -->
