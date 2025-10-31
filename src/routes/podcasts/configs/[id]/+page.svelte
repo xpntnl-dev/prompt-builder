@@ -794,6 +794,21 @@
 							/>
 							<p class="text-xs text-gray-500 mt-1">Comma-separated section names in order</p>
 						</div>
+
+						<div>
+							<label for="engagement_techniques" class="block text-sm font-medium text-gray-700 mb-1">
+								Engagement Techniques
+							</label>
+							<input
+								type="text"
+								id="engagement_techniques"
+								name="engagement_techniques"
+								value={arrayToString(data.config.engagement_techniques)}
+								placeholder="e.g., questions, humor, examples, storytelling (comma-separated)"
+								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+							/>
+							<p class="text-xs text-gray-500 mt-1">Comma-separated engagement techniques</p>
+						</div>
 					</div>
 
 					<div class="flex gap-2 mt-4">
@@ -853,15 +868,30 @@
 							<p class="text-gray-900">Not specified</p>
 						</div>
 					{/if}
+					{#if data.config.engagement_techniques && data.config.engagement_techniques.length > 0}
+						<div>
+							<label class="text-sm font-medium text-gray-500">Engagement Techniques</label>
+							<div class="flex flex-wrap gap-2 mt-1">
+								{#each data.config.engagement_techniques as technique}
+									<span class="px-2 py-1 bg-purple-50 text-purple-700 rounded text-sm">{technique}</span>
+								{/each}
+							</div>
+						</div>
+					{:else}
+						<div>
+							<label class="text-sm font-medium text-gray-500">Engagement Techniques</label>
+							<p class="text-gray-900">Not specified</p>
+						</div>
+					{/if}
 				</div>
 			{/if}
 		</div>
 
 
-		<!-- Engagement Section -->
+		<!-- Custom Instructions Section -->
 		<div class="bg-white rounded-lg shadow p-6">
 			<div class="flex justify-between items-center mb-4">
-				<h2 class="text-lg font-semibold text-gray-900">Engagement</h2>
+				<h2 class="text-lg font-semibold text-gray-900">Custom Instructions</h2>
 				{#if !editingEngagement}
 					<button
 						onclick={() => editingEngagement = true}
@@ -888,21 +918,6 @@
 				>
 					<div class="space-y-4">
 						<div>
-							<label for="engagement_techniques" class="block text-sm font-medium text-gray-700 mb-1">
-								Engagement Techniques
-							</label>
-							<input
-								type="text"
-								id="engagement_techniques"
-								name="engagement_techniques"
-								value={arrayToString(data.config.engagement_techniques)}
-								placeholder="e.g., questions, humor, examples, storytelling (comma-separated)"
-								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-							/>
-							<p class="text-xs text-gray-500 mt-1">Comma-separated engagement techniques</p>
-						</div>
-
-						<div>
 							<label for="user_instructions" class="block text-sm font-medium text-gray-700 mb-1">
 								Custom Instructions
 							</label>
@@ -910,12 +925,12 @@
 								id="user_instructions"
 								name="user_instructions"
 								value={data.config.user_instructions || ''}
-								rows="4"
+								rows="6"
 								maxlength="2000"
 								placeholder="Any specific instructions or guidelines for the podcast generation..."
 								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
 							></textarea>
-							<p class="text-xs text-gray-500 mt-1">Optional. Max 2000 characters.</p>
+							<p class="text-xs text-gray-500 mt-1">Optional. Max 2000 characters. Add any specific instructions or guidelines for podcast generation.</p>
 						</div>
 					</div>
 
@@ -938,29 +953,14 @@
 			{:else}
 				<!-- VIEW MODE -->
 				<div class="space-y-3">
-					{#if data.config.engagement_techniques && data.config.engagement_techniques.length > 0}
-						<div>
-							<label class="text-sm font-medium text-gray-500">Engagement Techniques</label>
-							<div class="flex flex-wrap gap-2 mt-1">
-								{#each data.config.engagement_techniques as technique}
-									<span class="px-2 py-1 bg-purple-50 text-purple-700 rounded text-sm">{technique}</span>
-								{/each}
-							</div>
-						</div>
-					{:else}
-						<div>
-							<label class="text-sm font-medium text-gray-500">Engagement Techniques</label>
-							<p class="text-gray-900">Not specified</p>
-						</div>
-					{/if}
 					{#if data.config.user_instructions}
 						<div>
-							<label class="text-sm font-medium text-gray-500">Custom Instructions</label>
+							<label class="text-sm font-medium text-gray-500">Instructions</label>
 							<p class="text-gray-900 text-sm whitespace-pre-wrap">{data.config.user_instructions}</p>
 						</div>
 					{:else}
 						<div>
-							<label class="text-sm font-medium text-gray-500">Custom Instructions</label>
+							<label class="text-sm font-medium text-gray-500">Instructions</label>
 							<p class="text-gray-900">Not specified</p>
 						</div>
 					{/if}

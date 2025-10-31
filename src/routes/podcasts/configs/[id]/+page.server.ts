@@ -236,10 +236,12 @@ export const actions: Actions = {
 		const roles_person2 = formData.get('roles_person2') as string;
 		const conversation_style_raw = formData.get('conversation_style') as string;
 		const dialogue_structure_raw = formData.get('dialogue_structure') as string;
+		const engagement_techniques_raw = formData.get('engagement_techniques') as string;
 
 		// Parse JSONB arrays from comma-separated strings
 		let conversation_style = null;
 		let dialogue_structure = null;
+		let engagement_techniques = null;
 
 		if (conversation_style_raw && conversation_style_raw.trim()) {
 			conversation_style = conversation_style_raw
@@ -255,6 +257,13 @@ export const actions: Actions = {
 				.filter((s) => s.length > 0);
 		}
 
+		if (engagement_techniques_raw && engagement_techniques_raw.trim()) {
+			engagement_techniques = engagement_techniques_raw
+				.split(',')
+				.map((s) => s.trim())
+				.filter((s) => s.length > 0);
+		}
+
 		// Update database
 		const { error: updateError } = await supabase
 			.from('podcast_configs')
@@ -263,6 +272,7 @@ export const actions: Actions = {
 				roles_person2: roles_person2 || null,
 				conversation_style,
 				dialogue_structure,
+				engagement_techniques,
 				updated_at: new Date().toISOString()
 			})
 			.eq('id', params.id);
@@ -277,32 +287,20 @@ export const actions: Actions = {
 
 	updateEngagement: async ({ request, params }) => {
 		const formData = await request.formData();
-		const engagement_techniques_raw = formData.get('engagement_techniques') as string;
 		const user_instructions = formData.get('user_instructions') as string;
-
-		// Parse JSONB array from comma-separated string
-		let engagement_techniques = null;
-
-		if (engagement_techniques_raw && engagement_techniques_raw.trim()) {
-			engagement_techniques = engagement_techniques_raw
-				.split(',')
-				.map((s) => s.trim())
-				.filter((s) => s.length > 0);
-		}
 
 		// Update database
 		const { error: updateError } = await supabase
 			.from('podcast_configs')
 			.update({
-				engagement_techniques,
 				user_instructions: user_instructions || null,
 				updated_at: new Date().toISOString()
 			})
 			.eq('id', params.id);
 
 		if (updateError) {
-			console.error('Error updating engagement:', updateError);
-			return fail(500, { error: `Failed to update engagement: ${updateError.message}` });
+			console.error('Error updating custom instructions:', updateError);
+			return fail(500, { error: `Failed to update custom instructions: ${updateError.message}` });
 		}
 
 		return { success: true };
