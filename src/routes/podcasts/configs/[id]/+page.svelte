@@ -10,6 +10,18 @@
 	let showDeleteConfirm = $state(false);
 	let changingModel = $state(false);
 	let selectedModelId = $state<string>('');
+	let editingBasic = $state(false);
+	let editingBranding = $state(false);
+	let editingCreativity = $state(false);
+	let editingConversation = $state(false);
+	let editingTTS = $state(false);
+	let editingEngagement = $state(false);
+	let editingLongform = $state(false);
+
+	// Helper function to convert array to comma-separated string
+	function arrayToString(arr: string[] | null): string {
+		return arr ? arr.join(', ') : '';
+	}
 
 	// LocalStorage key for pinned models (matches LLM Models page)
 	const STORAGE_KEY = 'rvkcat_pinned_models';
@@ -108,12 +120,6 @@
 					{data.config.is_active ? 'Deactivate' : 'Activate'}
 				</button>
 			</form>
-			<a
-				href="/podcasts/configs/{data.config.id}/edit"
-				class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-			>
-				Edit Configuration
-			</a>
 			<button
 				onclick={() => showDeleteConfirm = true}
 				class="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm font-medium"
@@ -166,25 +172,242 @@
 	<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 		<!-- Basic Info Section -->
 		<div class="bg-white rounded-lg shadow p-6">
-			<h2 class="text-lg font-semibold text-gray-900 mb-4">Basic Information</h2>
-			<div class="space-y-3">
-				<div>
-					<label class="text-sm font-medium text-gray-500">Config Name</label>
-					<p class="text-gray-900">{data.config.config_name}</p>
-				</div>
-				<div>
-					<label class="text-sm font-medium text-gray-500">Config Type</label>
-					<div class="mt-1">
-						<span class="inline-block px-2 py-1 text-xs font-medium rounded {getConfigTypeBadgeColor(data.config.config_type)}">
-							{data.config.config_type.replace('_', ' ').toUpperCase()}
-						</span>
+			<div class="flex justify-between items-center mb-4">
+				<h2 class="text-lg font-semibold text-gray-900">Basic Information</h2>
+				{#if !editingBasic}
+					<button
+						onclick={() => editingBasic = true}
+						class="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+					>
+						Edit
+					</button>
+				{/if}
+			</div>
+
+			{#if editingBasic}
+				<!-- EDIT MODE -->
+				<form
+					method="POST"
+					action="?/updateBasic"
+					use:enhance={() => {
+						return async ({ result, update }) => {
+							if (result.type === 'success') {
+								editingBasic = false;
+							}
+							await update();
+						};
+					}}
+				>
+					<div class="space-y-4">
+						<div>
+							<label for="config_name" class="block text-sm font-medium text-gray-700 mb-1">
+								Config Name <span class="text-red-500">*</span>
+							</label>
+							<input
+								type="text"
+								id="config_name"
+								name="config_name"
+								value={data.config.config_name}
+								required
+								maxlength="255"
+								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+							/>
+						</div>
+
+						<div>
+							<label for="config_type" class="block text-sm font-medium text-gray-700 mb-1">
+								Config Type <span class="text-red-500">*</span>
+							</label>
+							<select
+								id="config_type"
+								name="config_type"
+								value={data.config.config_type}
+								required
+								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+							>
+								<option value="tech_startup">Tech Startup</option>
+								<option value="music_creative">Music Creative</option>
+								<option value="educational">Educational</option>
+								<option value="storytelling">Storytelling</option>
+								<option value="debate">Debate</option>
+								<option value="custom">Custom</option>
+							</select>
+						</div>
+
+						<div>
+							<label for="description" class="block text-sm font-medium text-gray-700 mb-1">
+								Description
+							</label>
+							<textarea
+								id="description"
+								name="description"
+								value={data.config.description || ''}
+								rows="3"
+								maxlength="1000"
+								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+							></textarea>
+							<p class="text-xs text-gray-500 mt-1">Optional. Max 1000 characters.</p>
+						</div>
+					</div>
+
+					<div class="flex gap-2 mt-4">
+						<button
+							type="submit"
+							class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+						>
+							Save
+						</button>
+						<button
+							type="button"
+							onclick={() => editingBasic = false}
+							class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors text-sm font-medium"
+						>
+							Cancel
+						</button>
+					</div>
+				</form>
+			{:else}
+				<!-- VIEW MODE -->
+				<div class="space-y-3">
+					<div>
+						<label class="text-sm font-medium text-gray-500">Config Name</label>
+						<p class="text-gray-900">{data.config.config_name}</p>
+					</div>
+					<div>
+						<label class="text-sm font-medium text-gray-500">Config Type</label>
+						<div class="mt-1">
+							<span class="inline-block px-2 py-1 text-xs font-medium rounded {getConfigTypeBadgeColor(data.config.config_type)}">
+								{data.config.config_type.replace('_', ' ').toUpperCase()}
+							</span>
+						</div>
+					</div>
+					<div>
+						<label class="text-sm font-medium text-gray-500">Description</label>
+						<p class="text-gray-900">{data.config.description || 'Not specified'}</p>
 					</div>
 				</div>
-				<div>
-					<label class="text-sm font-medium text-gray-500">Output Language</label>
-					<p class="text-gray-900">{data.config.output_language}</p>
-				</div>
+			{/if}
+		</div>
+
+		<!-- Branding & Language Section -->
+		<div class="bg-white rounded-lg shadow p-6">
+			<div class="flex justify-between items-center mb-4">
+				<h2 class="text-lg font-semibold text-gray-900">Branding & Language</h2>
+				{#if !editingBranding}
+					<button
+						onclick={() => editingBranding = true}
+						class="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+					>
+						Edit
+					</button>
+				{/if}
 			</div>
+
+			{#if editingBranding}
+				<!-- EDIT MODE -->
+				<form
+					method="POST"
+					action="?/updateBranding"
+					use:enhance={() => {
+						return async ({ result, update }) => {
+							if (result.type === 'success') {
+								editingBranding = false;
+							}
+							await update();
+						};
+					}}
+				>
+					<div class="space-y-4">
+						<div>
+							<label for="podcast_name" class="block text-sm font-medium text-gray-700 mb-1">
+								Podcast Name <span class="text-red-500">*</span>
+							</label>
+							<input
+								type="text"
+								id="podcast_name"
+								name="podcast_name"
+								value={data.config.podcast_name}
+								required
+								maxlength="255"
+								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+							/>
+						</div>
+
+						<div>
+							<label for="podcast_tagline" class="block text-sm font-medium text-gray-700 mb-1">
+								Podcast Tagline
+							</label>
+							<input
+								type="text"
+								id="podcast_tagline"
+								name="podcast_tagline"
+								value={data.config.podcast_tagline || ''}
+								maxlength="500"
+								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+							/>
+							<p class="text-xs text-gray-500 mt-1">Optional. Max 500 characters.</p>
+						</div>
+
+						<div>
+							<label for="output_language" class="block text-sm font-medium text-gray-700 mb-1">
+								Output Language <span class="text-red-500">*</span>
+							</label>
+							<select
+								id="output_language"
+								name="output_language"
+								value={data.config.output_language}
+								required
+								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+							>
+								<option value="English">English</option>
+								<option value="Spanish">Spanish</option>
+								<option value="French">French</option>
+								<option value="German">German</option>
+								<option value="Italian">Italian</option>
+								<option value="Portuguese">Portuguese</option>
+								<option value="Chinese">Chinese</option>
+								<option value="Japanese">Japanese</option>
+								<option value="Korean">Korean</option>
+								<option value="Arabic">Arabic</option>
+								<option value="Hindi">Hindi</option>
+								<option value="Russian">Russian</option>
+							</select>
+						</div>
+					</div>
+
+					<div class="flex gap-2 mt-4">
+						<button
+							type="submit"
+							class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+						>
+							Save
+						</button>
+						<button
+							type="button"
+							onclick={() => editingBranding = false}
+							class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors text-sm font-medium"
+						>
+							Cancel
+						</button>
+					</div>
+				</form>
+			{:else}
+				<!-- VIEW MODE -->
+				<div class="space-y-3">
+					<div>
+						<label class="text-sm font-medium text-gray-500">Podcast Name</label>
+						<p class="text-gray-900">{data.config.podcast_name}</p>
+					</div>
+					<div>
+						<label class="text-sm font-medium text-gray-500">Podcast Tagline</label>
+						<p class="text-gray-900">{data.config.podcast_tagline || 'Not specified'}</p>
+					</div>
+					<div>
+						<label class="text-sm font-medium text-gray-500">Output Language</label>
+						<p class="text-gray-900">{data.config.output_language}</p>
+					</div>
+				</div>
+			{/if}
 		</div>
 
 		<!-- LLM Configuration Section -->
@@ -242,9 +465,11 @@
 									type="button"
 									onclick={() => {
 										changingModel = false;
-										selectedModelId = data.models.find(
-											(m) => m.provider === data.config.llm_provider && m.model_name === data.config.llm_model
-										)?.id || '';
+										// Match by constructing the full model ID from provider/model
+										const fullModelId = data.config.llm_provider && data.config.llm_model
+											? `${data.config.llm_provider}/${data.config.llm_model}`
+											: '';
+										selectedModelId = data.models.find((m) => m.id === fullModelId)?.id || '';
 									}}
 									class="px-3 py-1.5 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors text-sm font-medium"
 								>
@@ -268,9 +493,11 @@
 							<button
 								onclick={() => {
 									changingModel = true;
-									selectedModelId = data.models.find(
-										(m) => m.provider === data.config.llm_provider && m.model_name === data.config.llm_model
-									)?.id || '';
+									// Match by constructing the full model ID from provider/model
+									const fullModelId = data.config.llm_provider && data.config.llm_model
+										? `${data.config.llm_provider}/${data.config.llm_model}`
+										: '';
+									selectedModelId = data.models.find((m) => m.id === fullModelId)?.id || '';
 								}}
 								class="text-sm text-blue-600 hover:text-blue-800 hover:underline"
 								title="Change model"
@@ -280,124 +507,617 @@
 						</div>
 					{/if}
 				</div>
+
+				<!-- Creativity Level -->
 				<div>
-					<label class="text-sm font-medium text-gray-500">Creativity Level</label>
-					<p class="text-gray-900">
-						{#if data.config.llm_creativity !== null}
-							{data.config.llm_creativity} / 1.0
-							<span class="text-sm text-gray-500">
-								({data.config.llm_creativity < 0.3 ? 'Conservative' : data.config.llm_creativity < 0.7 ? 'Balanced' : 'Creative'})
-							</span>
-						{:else}
-							Default
-						{/if}
-					</p>
+					{#if editingCreativity}
+						<form
+							method="POST"
+							action="?/updateCreativity"
+							use:enhance={() => {
+								return async ({ result, update }) => {
+									if (result.type === 'success') {
+										editingCreativity = false;
+									}
+									await update();
+								};
+							}}
+						>
+							<div class="space-y-2">
+								<label for="llm_creativity" class="block text-sm font-medium text-gray-700">
+									Creativity Level
+								</label>
+								<input
+									type="range"
+									id="llm_creativity"
+									name="llm_creativity"
+									min="0"
+									max="1"
+									step="0.1"
+									value={data.config.llm_creativity ?? 0.7}
+									class="w-full"
+									oninput={(e) => {
+										const val = parseFloat(e.currentTarget.value);
+										const label = e.currentTarget.nextElementSibling;
+										if (label) {
+											const levelText = val < 0.3 ? 'Conservative' : val < 0.7 ? 'Balanced' : 'Creative';
+											label.textContent = `${val.toFixed(1)} / 1.0 (${levelText})`;
+										}
+									}}
+								/>
+								<p class="text-sm text-gray-600">
+									{data.config.llm_creativity !== null ? `${data.config.llm_creativity.toFixed(1)} / 1.0 (${data.config.llm_creativity < 0.3 ? 'Conservative' : data.config.llm_creativity < 0.7 ? 'Balanced' : 'Creative'})` : '0.7 / 1.0 (Balanced)'}
+								</p>
+							</div>
+
+							<div class="flex gap-2 mt-3">
+								<button
+									type="submit"
+									class="px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+								>
+									Save
+								</button>
+								<button
+									type="button"
+									onclick={() => editingCreativity = false}
+									class="px-3 py-1.5 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors text-sm font-medium"
+								>
+									Cancel
+								</button>
+							</div>
+						</form>
+					{:else}
+						<div class="flex items-center gap-2">
+							<div class="text-gray-600 text-sm flex-1">
+								<label class="text-sm font-medium text-gray-500 block mb-1">Creativity Level</label>
+								<p class="text-gray-900">
+									{#if data.config.llm_creativity !== null}
+										{data.config.llm_creativity.toFixed(1)} / 1.0
+										<span class="text-sm text-gray-500">
+											({data.config.llm_creativity < 0.3 ? 'Conservative' : data.config.llm_creativity < 0.7 ? 'Balanced' : 'Creative'})
+										</span>
+									{:else}
+										Default
+									{/if}
+								</p>
+							</div>
+							<button
+								onclick={() => editingCreativity = true}
+								class="text-sm text-blue-600 hover:text-blue-800 hover:underline self-start"
+								title="Change creativity level"
+							>
+								Change
+							</button>
+						</div>
+					{/if}
 				</div>
 			</div>
 		</div>
 
 		<!-- Conversation Settings Section -->
 		<div class="bg-white rounded-lg shadow p-6">
-			<h2 class="text-lg font-semibold text-gray-900 mb-4">Conversation Settings</h2>
-			<div class="space-y-3">
-				<div>
-					<label class="text-sm font-medium text-gray-500">Speaker 1 Role</label>
-					<p class="text-gray-900">{data.config.roles_person1 || 'Not specified'}</p>
-				</div>
-				<div>
-					<label class="text-sm font-medium text-gray-500">Speaker 2 Role</label>
-					<p class="text-gray-900">{data.config.roles_person2 || 'Not specified'}</p>
-				</div>
-				{#if data.config.conversation_style && data.config.conversation_style.length > 0}
-					<div>
-						<label class="text-sm font-medium text-gray-500">Conversation Style</label>
-						<div class="flex flex-wrap gap-2 mt-1">
-							{#each data.config.conversation_style as style}
-								<span class="px-2 py-1 bg-blue-50 text-blue-700 rounded text-sm">{style}</span>
-							{/each}
-						</div>
-					</div>
-				{/if}
-				{#if data.config.dialogue_structure && data.config.dialogue_structure.length > 0}
-					<div>
-						<label class="text-sm font-medium text-gray-500">Dialogue Structure</label>
-						<ol class="list-decimal list-inside text-sm text-gray-900 mt-1 space-y-1">
-							{#each data.config.dialogue_structure as section}
-								<li>{section}</li>
-							{/each}
-						</ol>
-					</div>
+			<div class="flex justify-between items-center mb-4">
+				<h2 class="text-lg font-semibold text-gray-900">Conversation Settings</h2>
+				{#if !editingConversation}
+					<button
+						onclick={() => editingConversation = true}
+						class="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+					>
+						Edit
+					</button>
 				{/if}
 			</div>
+
+			{#if editingConversation}
+				<!-- EDIT MODE -->
+				<form
+					method="POST"
+					action="?/updateConversation"
+					use:enhance={() => {
+						return async ({ result, update }) => {
+							if (result.type === 'success') {
+								editingConversation = false;
+							}
+							await update();
+						};
+					}}
+				>
+					<div class="space-y-4">
+						<div>
+							<label for="roles_person1" class="block text-sm font-medium text-gray-700 mb-1">
+								Speaker 1 Role
+							</label>
+							<input
+								type="text"
+								id="roles_person1"
+								name="roles_person1"
+								value={data.config.roles_person1 || ''}
+								maxlength="255"
+								placeholder="e.g., Host, Interviewer, Expert"
+								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+							/>
+						</div>
+
+						<div>
+							<label for="roles_person2" class="block text-sm font-medium text-gray-700 mb-1">
+								Speaker 2 Role
+							</label>
+							<input
+								type="text"
+								id="roles_person2"
+								name="roles_person2"
+								value={data.config.roles_person2 || ''}
+								maxlength="255"
+								placeholder="e.g., Guest, Co-host, Learner"
+								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+							/>
+						</div>
+
+						<div>
+							<label for="conversation_style" class="block text-sm font-medium text-gray-700 mb-1">
+								Conversation Style
+							</label>
+							<input
+								type="text"
+								id="conversation_style"
+								name="conversation_style"
+								value={arrayToString(data.config.conversation_style)}
+								placeholder="e.g., casual, professional, humorous (comma-separated)"
+								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+							/>
+							<p class="text-xs text-gray-500 mt-1">Comma-separated style keywords</p>
+						</div>
+
+						<div>
+							<label for="dialogue_structure" class="block text-sm font-medium text-gray-700 mb-1">
+								Dialogue Structure
+							</label>
+							<input
+								type="text"
+								id="dialogue_structure"
+								name="dialogue_structure"
+								value={arrayToString(data.config.dialogue_structure)}
+								placeholder="e.g., Introduction, Main Discussion, Q&A (comma-separated)"
+								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+							/>
+							<p class="text-xs text-gray-500 mt-1">Comma-separated section names in order</p>
+						</div>
+					</div>
+
+					<div class="flex gap-2 mt-4">
+						<button
+							type="submit"
+							class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+						>
+							Save
+						</button>
+						<button
+							type="button"
+							onclick={() => editingConversation = false}
+							class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors text-sm font-medium"
+						>
+							Cancel
+						</button>
+					</div>
+				</form>
+			{:else}
+				<!-- VIEW MODE -->
+				<div class="space-y-3">
+					<div>
+						<label class="text-sm font-medium text-gray-500">Speaker 1 Role</label>
+						<p class="text-gray-900">{data.config.roles_person1 || 'Not specified'}</p>
+					</div>
+					<div>
+						<label class="text-sm font-medium text-gray-500">Speaker 2 Role</label>
+						<p class="text-gray-900">{data.config.roles_person2 || 'Not specified'}</p>
+					</div>
+					{#if data.config.conversation_style && data.config.conversation_style.length > 0}
+						<div>
+							<label class="text-sm font-medium text-gray-500">Conversation Style</label>
+							<div class="flex flex-wrap gap-2 mt-1">
+								{#each data.config.conversation_style as style}
+									<span class="px-2 py-1 bg-blue-50 text-blue-700 rounded text-sm">{style}</span>
+								{/each}
+							</div>
+						</div>
+					{:else}
+						<div>
+							<label class="text-sm font-medium text-gray-500">Conversation Style</label>
+							<p class="text-gray-900">Not specified</p>
+						</div>
+					{/if}
+					{#if data.config.dialogue_structure && data.config.dialogue_structure.length > 0}
+						<div>
+							<label class="text-sm font-medium text-gray-500">Dialogue Structure</label>
+							<ol class="list-decimal list-inside text-sm text-gray-900 mt-1 space-y-1">
+								{#each data.config.dialogue_structure as section}
+									<li>{section}</li>
+								{/each}
+							</ol>
+						</div>
+					{:else}
+						<div>
+							<label class="text-sm font-medium text-gray-500">Dialogue Structure</label>
+							<p class="text-gray-900">Not specified</p>
+						</div>
+					{/if}
+				</div>
+			{/if}
 		</div>
 
 		<!-- TTS Configuration Section -->
 		<div class="bg-white rounded-lg shadow p-6">
-			<h2 class="text-lg font-semibold text-gray-900 mb-4">Text-to-Speech Configuration</h2>
-			<div class="space-y-3">
-				<div>
-					<label class="text-sm font-medium text-gray-500">TTS Provider</label>
-					<p class="text-gray-900">{data.config.tts_provider}</p>
-				</div>
-				<div>
-					<label class="text-sm font-medium text-gray-500">TTS Model</label>
-					<p class="text-gray-900">{data.config.tts_model || 'Default'}</p>
-				</div>
-				<div>
-					<label class="text-sm font-medium text-gray-500">Speaker 1 Voice</label>
-					<p class="text-gray-900">{data.config.voice_person1 || 'Default'}</p>
-				</div>
-				<div>
-					<label class="text-sm font-medium text-gray-500">Speaker 2 Voice</label>
-					<p class="text-gray-900">{data.config.voice_person2 || 'Default'}</p>
-				</div>
-				<div>
-					<label class="text-sm font-medium text-gray-500">Audio Format</label>
-					<p class="text-gray-900 uppercase">{data.config.audio_format}</p>
-				</div>
-				<div>
-					<label class="text-sm font-medium text-gray-500">Ending Message</label>
-					<p class="text-gray-900">{data.config.ending_message}</p>
-				</div>
+			<div class="flex justify-between items-center mb-4">
+				<h2 class="text-lg font-semibold text-gray-900">Text-to-Speech Configuration</h2>
+				{#if !editingTTS}
+					<button
+						onclick={() => editingTTS = true}
+						class="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+					>
+						Edit
+					</button>
+				{/if}
 			</div>
+
+			{#if editingTTS}
+				<!-- EDIT MODE -->
+				<form
+					method="POST"
+					action="?/updateTTS"
+					use:enhance={() => {
+						return async ({ result, update }) => {
+							if (result.type === 'success') {
+								editingTTS = false;
+							}
+							await update();
+						};
+					}}
+				>
+					<div class="space-y-4">
+						<div>
+							<label for="tts_provider" class="block text-sm font-medium text-gray-700 mb-1">
+								TTS Provider <span class="text-red-500">*</span>
+							</label>
+							<select
+								id="tts_provider"
+								name="tts_provider"
+								value={data.config.tts_provider}
+								required
+								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+							>
+								<option value="openai">OpenAI</option>
+								<option value="elevenlabs">ElevenLabs</option>
+								<option value="google">Google</option>
+								<option value="amazon">Amazon Polly</option>
+								<option value="microsoft">Microsoft Azure</option>
+							</select>
+						</div>
+
+						<div>
+							<label for="tts_model" class="block text-sm font-medium text-gray-700 mb-1">
+								TTS Model
+							</label>
+							<input
+								type="text"
+								id="tts_model"
+								name="tts_model"
+								value={data.config.tts_model || ''}
+								placeholder="e.g., tts-1, tts-1-hd"
+								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+							/>
+							<p class="text-xs text-gray-500 mt-1">Optional. Specific model for the provider</p>
+						</div>
+
+						<div>
+							<label for="voice_person1" class="block text-sm font-medium text-gray-700 mb-1">
+								Speaker 1 Voice
+							</label>
+							<input
+								type="text"
+								id="voice_person1"
+								name="voice_person1"
+								value={data.config.voice_person1 || ''}
+								placeholder="e.g., alloy, echo, shimmer"
+								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+							/>
+						</div>
+
+						<div>
+							<label for="voice_person2" class="block text-sm font-medium text-gray-700 mb-1">
+								Speaker 2 Voice
+							</label>
+							<input
+								type="text"
+								id="voice_person2"
+								name="voice_person2"
+								value={data.config.voice_person2 || ''}
+								placeholder="e.g., nova, onyx, fable"
+								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+							/>
+						</div>
+
+						<div>
+							<label for="audio_format" class="block text-sm font-medium text-gray-700 mb-1">
+								Audio Format <span class="text-red-500">*</span>
+							</label>
+							<select
+								id="audio_format"
+								name="audio_format"
+								value={data.config.audio_format}
+								required
+								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+							>
+								<option value="mp3">MP3</option>
+								<option value="wav">WAV</option>
+								<option value="flac">FLAC</option>
+								<option value="aac">AAC</option>
+							</select>
+						</div>
+
+						<div>
+							<label for="ending_message" class="block text-sm font-medium text-gray-700 mb-1">
+								Ending Message <span class="text-red-500">*</span>
+							</label>
+							<input
+								type="text"
+								id="ending_message"
+								name="ending_message"
+								value={data.config.ending_message}
+								required
+								maxlength="500"
+								placeholder="e.g., Thanks for listening!"
+								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+							/>
+						</div>
+					</div>
+
+					<div class="flex gap-2 mt-4">
+						<button
+							type="submit"
+							class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+						>
+							Save
+						</button>
+						<button
+							type="button"
+							onclick={() => editingTTS = false}
+							class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors text-sm font-medium"
+						>
+							Cancel
+						</button>
+					</div>
+				</form>
+			{:else}
+				<!-- VIEW MODE -->
+				<div class="space-y-3">
+					<div>
+						<label class="text-sm font-medium text-gray-500">TTS Provider</label>
+						<p class="text-gray-900">{data.config.tts_provider}</p>
+					</div>
+					<div>
+						<label class="text-sm font-medium text-gray-500">TTS Model</label>
+						<p class="text-gray-900">{data.config.tts_model || 'Default'}</p>
+					</div>
+					<div>
+						<label class="text-sm font-medium text-gray-500">Speaker 1 Voice</label>
+						<p class="text-gray-900">{data.config.voice_person1 || 'Default'}</p>
+					</div>
+					<div>
+						<label class="text-sm font-medium text-gray-500">Speaker 2 Voice</label>
+						<p class="text-gray-900">{data.config.voice_person2 || 'Default'}</p>
+					</div>
+					<div>
+						<label class="text-sm font-medium text-gray-500">Audio Format</label>
+						<p class="text-gray-900 uppercase">{data.config.audio_format}</p>
+					</div>
+					<div>
+						<label class="text-sm font-medium text-gray-500">Ending Message</label>
+						<p class="text-gray-900">{data.config.ending_message}</p>
+					</div>
+				</div>
+			{/if}
 		</div>
 
 		<!-- Engagement Section -->
 		<div class="bg-white rounded-lg shadow p-6">
-			<h2 class="text-lg font-semibold text-gray-900 mb-4">Engagement</h2>
-			<div class="space-y-3">
-				{#if data.config.engagement_techniques && data.config.engagement_techniques.length > 0}
-					<div>
-						<label class="text-sm font-medium text-gray-500">Engagement Techniques</label>
-						<div class="flex flex-wrap gap-2 mt-1">
-							{#each data.config.engagement_techniques as technique}
-								<span class="px-2 py-1 bg-purple-50 text-purple-700 rounded text-sm">{technique}</span>
-							{/each}
-						</div>
-					</div>
-				{/if}
-				{#if data.config.user_instructions}
-					<div>
-						<label class="text-sm font-medium text-gray-500">Custom Instructions</label>
-						<p class="text-gray-900 text-sm whitespace-pre-wrap">{data.config.user_instructions}</p>
-					</div>
+			<div class="flex justify-between items-center mb-4">
+				<h2 class="text-lg font-semibold text-gray-900">Engagement</h2>
+				{#if !editingEngagement}
+					<button
+						onclick={() => editingEngagement = true}
+						class="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+					>
+						Edit
+					</button>
 				{/if}
 			</div>
+
+			{#if editingEngagement}
+				<!-- EDIT MODE -->
+				<form
+					method="POST"
+					action="?/updateEngagement"
+					use:enhance={() => {
+						return async ({ result, update }) => {
+							if (result.type === 'success') {
+								editingEngagement = false;
+							}
+							await update();
+						};
+					}}
+				>
+					<div class="space-y-4">
+						<div>
+							<label for="engagement_techniques" class="block text-sm font-medium text-gray-700 mb-1">
+								Engagement Techniques
+							</label>
+							<input
+								type="text"
+								id="engagement_techniques"
+								name="engagement_techniques"
+								value={arrayToString(data.config.engagement_techniques)}
+								placeholder="e.g., questions, humor, examples, storytelling (comma-separated)"
+								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+							/>
+							<p class="text-xs text-gray-500 mt-1">Comma-separated engagement techniques</p>
+						</div>
+
+						<div>
+							<label for="user_instructions" class="block text-sm font-medium text-gray-700 mb-1">
+								Custom Instructions
+							</label>
+							<textarea
+								id="user_instructions"
+								name="user_instructions"
+								value={data.config.user_instructions || ''}
+								rows="4"
+								maxlength="2000"
+								placeholder="Any specific instructions or guidelines for the podcast generation..."
+								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+							></textarea>
+							<p class="text-xs text-gray-500 mt-1">Optional. Max 2000 characters.</p>
+						</div>
+					</div>
+
+					<div class="flex gap-2 mt-4">
+						<button
+							type="submit"
+							class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+						>
+							Save
+						</button>
+						<button
+							type="button"
+							onclick={() => editingEngagement = false}
+							class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors text-sm font-medium"
+						>
+							Cancel
+						</button>
+					</div>
+				</form>
+			{:else}
+				<!-- VIEW MODE -->
+				<div class="space-y-3">
+					{#if data.config.engagement_techniques && data.config.engagement_techniques.length > 0}
+						<div>
+							<label class="text-sm font-medium text-gray-500">Engagement Techniques</label>
+							<div class="flex flex-wrap gap-2 mt-1">
+								{#each data.config.engagement_techniques as technique}
+									<span class="px-2 py-1 bg-purple-50 text-purple-700 rounded text-sm">{technique}</span>
+								{/each}
+							</div>
+						</div>
+					{:else}
+						<div>
+							<label class="text-sm font-medium text-gray-500">Engagement Techniques</label>
+							<p class="text-gray-900">Not specified</p>
+						</div>
+					{/if}
+					{#if data.config.user_instructions}
+						<div>
+							<label class="text-sm font-medium text-gray-500">Custom Instructions</label>
+							<p class="text-gray-900 text-sm whitespace-pre-wrap">{data.config.user_instructions}</p>
+						</div>
+					{:else}
+						<div>
+							<label class="text-sm font-medium text-gray-500">Custom Instructions</label>
+							<p class="text-gray-900">Not specified</p>
+						</div>
+					{/if}
+				</div>
+			{/if}
 		</div>
 
 		<!-- Long-form Settings Section -->
 		<div class="bg-white rounded-lg shadow p-6">
-			<h2 class="text-lg font-semibold text-gray-900 mb-4">Long-form Content Settings</h2>
-			<div class="space-y-3">
-				<div>
-					<label class="text-sm font-medium text-gray-500">Maximum Chunks</label>
-					<p class="text-gray-900">{data.config.max_num_chunks}</p>
-				</div>
-				<div>
-					<label class="text-sm font-medium text-gray-500">Minimum Chunk Size</label>
-					<p class="text-gray-900">{data.config.min_chunk_size} characters</p>
-				</div>
+			<div class="flex justify-between items-center mb-4">
+				<h2 class="text-lg font-semibold text-gray-900">Long-form Content Settings</h2>
+				{#if !editingLongform}
+					<button
+						onclick={() => editingLongform = true}
+						class="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+					>
+						Edit
+					</button>
+				{/if}
 			</div>
+
+			{#if editingLongform}
+				<!-- EDIT MODE -->
+				<form
+					method="POST"
+					action="?/updateLongform"
+					use:enhance={() => {
+						return async ({ result, update }) => {
+							if (result.type === 'success') {
+								editingLongform = false;
+							}
+							await update();
+						};
+					}}
+				>
+					<div class="space-y-4">
+						<div>
+							<label for="max_num_chunks" class="block text-sm font-medium text-gray-700 mb-1">
+								Maximum Chunks
+							</label>
+							<input
+								type="number"
+								id="max_num_chunks"
+								name="max_num_chunks"
+								value={data.config.max_num_chunks}
+								min="1"
+								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+							/>
+							<p class="text-xs text-gray-500 mt-1">Maximum number of chunks to split content into</p>
+						</div>
+
+						<div>
+							<label for="min_chunk_size" class="block text-sm font-medium text-gray-700 mb-1">
+								Minimum Chunk Size
+							</label>
+							<input
+								type="number"
+								id="min_chunk_size"
+								name="min_chunk_size"
+								value={data.config.min_chunk_size}
+								min="500"
+								step="100"
+								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+							/>
+							<p class="text-xs text-gray-500 mt-1">Minimum characters per chunk (minimum 500)</p>
+						</div>
+					</div>
+
+					<div class="flex gap-2 mt-4">
+						<button
+							type="submit"
+							class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+						>
+							Save
+						</button>
+						<button
+							type="button"
+							onclick={() => editingLongform = false}
+							class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors text-sm font-medium"
+						>
+							Cancel
+						</button>
+					</div>
+				</form>
+			{:else}
+				<!-- VIEW MODE -->
+				<div class="space-y-3">
+					<div>
+						<label class="text-sm font-medium text-gray-500">Maximum Chunks</label>
+						<p class="text-gray-900">{data.config.max_num_chunks}</p>
+					</div>
+					<div>
+						<label class="text-sm font-medium text-gray-500">Minimum Chunk Size</label>
+						<p class="text-gray-900">{data.config.min_chunk_size} characters</p>
+					</div>
+				</div>
+			{/if}
 		</div>
 	</div>
 
