@@ -1,0 +1,55 @@
+#!/bin/bash
+
+# Post-commit hook to log commits to context.md in agent changelog format
+# This hook runs after each git commit and automatically updates context.md
+
+# Get commit information
+COMMIT_HASH=$(git rev-parse --short HEAD)
+COMMIT_MSG=$(git log -1 --pretty=%B)
+COMMIT_TITLE=$(git log -1 --pretty=%s)  # First line only
+COMMIT_AUTHOR=$(git log -1 --pretty=%an)
+
+# Get file change statistics - use shortstat for summary
+STATS=$(git diff-tree --shortstat HEAD)
+FILES_CHANGED=$(echo "$STATS" | grep -oE '[0-9]+ file' | grep -oE '[0-9]+')
+INSERTIONS=$(echo "$STATS" | grep -oE '[0-9]+ insertion' | grep -oE '[0-9]+')
+DELETIONS=$(echo "$STATS" | grep -oE '[0-9]+ deletion' | grep -oE '[0-9]+')
+
+# Handle cases where counts might be empty
+FILES_CHANGED=${FILES_CHANGED:-0}
+INSERTIONS=${INSERTIONS:-0}
+DELETIONS=${DELETIONS:-0}
+
+# Format timestamp as DDMmmYYYY_HHMM (matching MCP time server format)
+# Month needs to be capitalized first letter only
+TIMESTAMP=$(date +"%d%b%Y_%H%M")
+
+# Path to context.md (relative to repository root)
+CONTEXT_FILE=".claude/docs/tasks/context.md"
+
+# Only proceed if context.md exists
+if [ ! -f "$CONTEXT_FILE" ]; then
+    exit 0
+fi
+
+# Build summary line with proper pluralization
+SUMMARY="Committed by ${COMMIT_AUTHOR} (${COMMIT_HASH}) - ${FILES_CHANGED} file(s) changed"
+if [ "$INSERTIONS" -gt 0 ] || [ "$DELETIONS" -gt 0 ]; then
+    SUMMARY="${SUMMARY}, ${INSERTIONS} insertion(s), ${DELETIONS} deletion(s)"
+fi
+
+# Format the changelog entry following agent format
+CHANGELOG_ENTRY="
+### ${COMMIT_TITLE} [${TIMESTAMP}] - git-commit
+**Summary:** ${SUMMARY}
+
+**Commit Message:**
+\`\`\`
+${COMMIT_MSG}
+\`\`\`
+"
+
+# Append to context.md
+echo "$CHANGELOG_ENTRY" >> "$CONTEXT_FILE"
+
+exit 0
