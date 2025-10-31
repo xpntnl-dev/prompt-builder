@@ -1,0 +1,144 @@
+<script lang="ts">
+	import { enhance } from '$app/forms';
+	import type { PageData, ActionData } from './$types';
+
+	export let data: PageData;
+	export let form: ActionData;
+
+	let showDeleteConfirm = false;
+</script>
+
+<div class="max-w-2xl mx-auto space-y-6">
+	<!-- Header -->
+	<div>
+		<h1 class="text-3xl font-bold text-gray-900">Edit Workflow</h1>
+		<p class="mt-2 text-gray-600">Update workflow configuration</p>
+	</div>
+
+	<!-- Edit Form -->
+	<div class="bg-white rounded-lg shadow p-6">
+		<form method="POST" action="?/update" use:enhance>
+			<div class="space-y-6">
+				<!-- Workflow Name -->
+				<div>
+					<label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+						Workflow Name <span class="text-red-500">*</span>
+					</label>
+					<input
+						type="text"
+						id="name"
+						name="name"
+						value={form?.name || data.workflow.name}
+						required
+						class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+						placeholder="e.g., RVKCAT Content Agent"
+					/>
+					<p class="mt-1 text-xs text-gray-500">
+						A descriptive name for this workflow (minimum 3 characters)
+					</p>
+				</div>
+
+				<!-- Description -->
+				<div>
+					<label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+						Description
+					</label>
+					<textarea
+						id="description"
+						name="description"
+						rows="4"
+						value={form?.description || data.workflow.description || ''}
+						class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+						placeholder="Brief description of what this workflow does..."
+					></textarea>
+					<p class="mt-1 text-xs text-gray-500">
+						Optional description to help identify the workflow's purpose
+					</p>
+				</div>
+
+				<!-- Error Message -->
+				{#if form?.error}
+					<div class="bg-red-50 border border-red-200 rounded-lg p-4">
+						<p class="text-red-800 text-sm">{form.error}</p>
+					</div>
+				{/if}
+
+				<!-- Actions -->
+				<div class="flex justify-between items-center pt-4 border-t">
+					<a
+						href="/workflows"
+						class="px-4 py-2 text-gray-700 hover:text-gray-900 transition-colors"
+					>
+						← Cancel
+					</a>
+					<button
+						type="submit"
+						class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+					>
+						Save Changes
+					</button>
+				</div>
+			</div>
+		</form>
+	</div>
+
+	<!-- Danger Zone -->
+	<div class="bg-white rounded-lg shadow p-6 border-2 border-red-200">
+		<h3 class="text-lg font-semibold text-red-900 mb-2">Danger Zone</h3>
+		<p class="text-sm text-gray-600 mb-4">
+			Deleting a workflow is permanent and cannot be undone. All associated prompts must be deleted first.
+		</p>
+
+		{#if !showDeleteConfirm}
+			<button
+				type="button"
+				onclick={() => (showDeleteConfirm = true)}
+				class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
+			>
+				Delete Workflow
+			</button>
+		{:else}
+			<div class="bg-red-50 border border-red-300 rounded-lg p-4">
+				<p class="text-sm text-red-800 font-semibold mb-3">
+					Are you sure? This action cannot be undone.
+				</p>
+				<div class="flex space-x-2">
+					<form method="POST" action="?/delete" use:enhance>
+						<button
+							type="submit"
+							class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors text-sm font-medium"
+						>
+							Yes, Delete Permanently
+						</button>
+					</form>
+					<button
+						type="button"
+						onclick={() => (showDeleteConfirm = false)}
+						class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors text-sm font-medium"
+					>
+						Cancel
+					</button>
+				</div>
+			</div>
+		{/if}
+	</div>
+
+	<!-- Metadata -->
+	<div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+		<h3 class="text-sm font-semibold text-gray-700 mb-2">Workflow Information</h3>
+		<dl class="space-y-1 text-xs text-gray-600">
+			<div class="flex justify-between">
+				<dt class="font-medium">ID:</dt>
+				<dd class="font-mono">{data.workflow.id}</dd>
+			</div>
+			<div class="flex justify-between">
+				<dt class="font-medium">Created:</dt>
+				<dd>{new Date(data.workflow.created_at).toLocaleString('en-GB')}</dd>
+			</div>
+			<div class="flex justify-between">
+				<dt class="font-medium">Updated:</dt>
+				<dd>{new Date(data.workflow.updated_at).toLocaleString('en-GB')}</dd>
+			</div>
+		</dl>
+	</div>
+</div>

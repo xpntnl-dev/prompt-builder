@@ -1,0 +1,30 @@
+# Version: 2.0.1
+name: Trigger GitHub Sync Edge Function
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  sync-commits:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger GitHub Sync (Delta Mode)
+        run: |
+          curl --request POST \
+            --url 'https://YOUR_PROJECT.supabase.co/functions/v1/github-sync' \
+            --header 'Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}' \
+            --header 'Content-Type: application/json' \
+            --data '{"mode": "delta"}' \
+            --fail-with-body
+
+      - name: Check Response
+        if: success()
+        run: echo "✅ GitHub sync completed successfully"
+
+      - name: Handle Failure
+        if: failure()
+        run: echo "❌ GitHub sync failed - check Edge Function logs in Supabase"

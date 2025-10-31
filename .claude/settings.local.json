@@ -1,0 +1,28 @@
+{
+  "mcpServers": {
+    "time": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@cloudflare/mcp-server-time"
+      ]
+    },
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@context7/mcp-server"
+      ]
+    }
+  },
+  "permissions": {
+    "allow": [
+      "mcp__time__get_current_time",
+      "mcp__time__convert_time",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__get-library-docs"
+    ],
+    "deny": []
+  },
+  "templateVersion": "6.1.2"
+}

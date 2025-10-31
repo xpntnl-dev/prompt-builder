@@ -1,0 +1,235 @@
+/* Filter Panel Styles - RVKCAT Theming */
+
+.filterPanel {
+  background: var(--ifm-background-surface-color);
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+
+/* Header Section */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  color: white;
+}
+
+.titleSection {
+  flex: 1;
+}
+
+.title {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.counts {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.count {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  font-weight: 500;
+}
+
+.toggleButton {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.8rem;
+  line-height: 1;
+}
+
+.toggleButton:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.toggleButton.expanded {
+  transform: rotate(180deg);
+}
+
+/* Search Section */
+.searchSection {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+}
+
+.searchInput {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 6px;
+  font-size: 0.95rem;
+  background: var(--ifm-background-color);
+  color: var(--ifm-color-content);
+  transition: all 0.2s ease;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #ff6b35;
+  box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
+}
+
+.searchInput::placeholder {
+  color: var(--ifm-color-content-secondary);
+}
+
+/* Filters Section */
+.filtersSection {
+  max-height: 0;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.filtersSection.expanded {
+  max-height: 500px;
+  padding: 1rem 1.5rem 1.5rem;
+}
+
+/* Filter Controls */
+.filterControls {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.controlButton {
+  background: var(--ifm-background-surface-color);
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  color: var(--ifm-color-content);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.controlButton:hover:not(:disabled) {
+  background: var(--ifm-color-emphasis-100);
+  border-color: #ff6b35;
+}
+
+.controlButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Agent Filter Chips */
+.agentChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.agentChip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--ifm-background-surface-color);
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 20px;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  color: var(--ifm-color-content);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.agentChip:hover {
+  background: var(--agent-color-light, rgba(255, 107, 53, 0.1));
+  border-color: var(--agent-color, #ff6b35);
+  transform: translateY(-1px);
+}
+
+.agentChip.selected {
+  background: var(--agent-color, #ff6b35);
+  color: white;
+  border-color: var(--agent-color, #ff6b35);
+}
+
+.agentName {
+  font-weight: 500;
+}
+
+.agentCount {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  padding: 0.1rem 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  min-width: 1.2rem;
+  text-align: center;
+}
+
+.agentChip:not(.selected) .agentCount {
+  background: var(--ifm-color-emphasis-200);
+  color: var(--ifm-color-content-secondary);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .header {
+    padding: 0.75rem 1rem;
+  }
+
+  .searchSection {
+    padding: 0.75rem 1rem;
+  }
+
+  .filtersSection.expanded {
+    padding: 0.75rem 1rem 1rem;
+  }
+
+  .agentChips {
+    gap: 0.4rem;
+  }
+
+  .agentChip {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+  }
+
+  .title {
+    font-size: 1.1rem;
+  }
+
+  .count {
+    font-size: 0.85rem;
+  }
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .filterPanel {
+  border-color: var(--ifm-color-emphasis-300);
+}
+
+[data-theme="dark"] .searchSection {
+  border-bottom-color: var(--ifm-color-emphasis-300);
+}
+
+[data-theme="dark"] .searchInput {
+  border-color: var(--ifm-color-emphasis-400);
+  background: var(--ifm-background-color);
+}
+
+[data-theme="dark"] .controlButton {
+  border-color: var(--ifm-color-emphasis-400);
+}
+
+[data-theme="dark"] .agentChip {
+  border-color: var(--ifm-color-emphasis-400);
+}

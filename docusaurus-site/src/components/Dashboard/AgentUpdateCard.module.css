@@ -1,0 +1,271 @@
+/* Agent Update Card Styles - RVKCAT Theming */
+
+.card {
+  background: var(--ifm-background-surface-color);
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-left: 4px solid var(--agent-color, #ff6b35);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(255, 107, 53, 0.15);
+  border-left-color: #ff6b35;
+}
+
+.card.compact {
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Header Section */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.titleSection {
+  flex: 1;
+}
+
+.title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+  color: var(--ifm-color-content);
+  line-height: 1.4;
+}
+
+.compact .title {
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.metadata {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.agentBadge {
+  display: inline-block;
+  background-color: var(--agent-color, #ff6b35);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.timestamp {
+  font-size: 0.85rem;
+  color: var(--ifm-color-content-secondary);
+  font-weight: 500;
+}
+
+/* Description Section */
+.description {
+  margin-bottom: 1rem;
+}
+
+.description p {
+  margin: 0;
+  color: var(--ifm-color-content-secondary);
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.description span {
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.description span:last-child {
+  margin-bottom: 0;
+}
+
+/* Footer Section */
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--ifm-color-emphasis-200);
+  gap: 1rem;
+}
+
+.compact .footer {
+  padding-top: 0.5rem;
+}
+
+.dateInfo {
+  flex: 1;
+}
+
+.fullDate {
+  font-size: 0.8rem;
+  color: var(--ifm-color-content-secondary);
+  font-family: var(--ifm-font-family-monospace);
+}
+
+.reportButton {
+  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.reportButton:hover {
+  background: linear-gradient(135deg, #e55a2b 0%, #e8841a 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+}
+
+/* Report Actions Container */
+.reportActions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* File Path Display */
+.filePath {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--ifm-color-emphasis-100);
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: 4px;
+  padding: 0.3rem 0.5rem;
+  font-family: var(--ifm-font-family-monospace);
+  max-width: 400px;
+}
+
+.filePathText {
+  font-size: 0.75rem;
+  color: var(--ifm-color-content-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Copy Button */
+.copyButton {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.2rem;
+  font-size: 0.8rem;
+  color: var(--ifm-color-content-secondary);
+  transition: all 0.2s ease;
+  border-radius: 3px;
+  min-width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.copyButton:hover {
+  background: var(--ifm-color-emphasis-200);
+  color: var(--ifm-color-content);
+  transform: scale(1.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .card {
+    padding: 1rem;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .metadata {
+    margin-top: 0.5rem;
+  }
+
+  .footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .reportActions {
+    align-self: flex-end;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+  }
+
+  .filePath {
+    max-width: 100%;
+    order: 2;
+  }
+
+  .reportButton {
+    order: 1;
+  }
+}
+
+/* Commit Message Section */
+.commitMessage {
+  margin-bottom: 1rem;
+  background: var(--ifm-color-emphasis-100);
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: 6px;
+  padding: 1rem;
+}
+
+.commitMessageLabel {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--ifm-font-color-base);
+}
+
+.commitMessageContent {
+  margin: 0;
+  padding: 0.75rem;
+  background: var(--ifm-background-surface-color);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  border-radius: 4px;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  color: var(--ifm-color-content);
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .card {
+  background: var(--ifm-background-surface-color);
+  border-color: var(--ifm-color-emphasis-300);
+}
+
+[data-theme="dark"] .card:hover {
+  box-shadow: 0 8px 24px rgba(255, 107, 53, 0.2);
+}
+
+[data-theme="dark"] .footer {
+  border-top-color: var(--ifm-color-emphasis-300);
+}
