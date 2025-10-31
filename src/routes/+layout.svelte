@@ -9,7 +9,6 @@
 
 	// Track which sections are expanded
 	const agentsExpanded = writable(true);
-	const podcastsExpanded = writable(true);
 </script>
 
 <div class="min-h-screen bg-gray-50 flex">
@@ -76,8 +75,8 @@
 
 			<!-- Podcasts Section -->
 			<div>
-				<button
-					on:click={() => podcastsExpanded.update(v => !v)}
+				<a
+					href="/podcasts"
 					class="flex items-center w-full px-4 py-3 text-sm font-medium rounded-lg transition-colors {isActive('/podcasts')
 						? 'bg-blue-50 text-blue-700'
 						: 'text-gray-700 hover:bg-gray-100'}"
@@ -86,27 +85,7 @@
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
 					</svg>
 					<span class="flex-1 text-left">Podcasts</span>
-					<svg class="w-4 h-4 transition-transform {$podcastsExpanded ? 'rotate-90' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-					</svg>
-				</button>
-
-				{#if $podcastsExpanded}
-					<div class="ml-4 mt-1 space-y-1">
-						<a
-							href="/podcasts/configs"
-							class="flex items-center px-4 py-2 text-sm rounded-lg transition-colors {isActive('/podcasts/configs')
-								? 'bg-blue-50 text-blue-700'
-								: 'text-gray-600 hover:bg-gray-100'}"
-						>
-							<svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-							</svg>
-							Configs
-						</a>
-					</div>
-				{/if}
+				</a>
 			</div>
 
 			<a

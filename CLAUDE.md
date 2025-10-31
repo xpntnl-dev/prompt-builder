@@ -6,7 +6,7 @@ This project uses an Enhanced Claude Code structure with specialized agents and 
 
 **Description:** [This is a template to put in place the basic essential services, scripts, configurations needed for new claude code projects. A well organised baseline of essential enhancements to claude code that have been developed to suit the way i work and the kinds of projects i work on]
 
-**Repository:** https://github.com/xpntnl-dev/claude-project-template
+**Repository:** https://github.com/xpntnl-dev/prompt-builder
 
 ---
 

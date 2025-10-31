@@ -35,12 +35,16 @@
 	<div class="flex justify-between items-start">
 		<div class="flex-1">
 			<div class="flex items-center space-x-2 text-sm text-gray-500 mb-2">
-				<a href="/podcasts/configs" class="hover:text-gray-700">Podcast Configs</a>
+				<a href="/podcasts" class="hover:text-gray-700">Podcasts</a>
 				<span>→</span>
+				{#if data.podcast}
+					<a href="/podcasts/{data.podcast.id}" class="hover:text-gray-700">{data.podcast.podcast_name}</a>
+					<span>→</span>
+				{/if}
 				<span class="text-gray-900 font-medium">{data.config.config_name}</span>
 			</div>
 			<div class="flex items-center gap-3">
-				<h1 class="text-3xl font-bold text-gray-900">{data.config.podcast_name || data.config.config_name}</h1>
+				<h1 class="text-3xl font-bold text-gray-900">{data.config.config_name}</h1>
 				{#if data.config.is_default}
 					<span class="px-3 py-1 text-sm font-semibold bg-yellow-100 text-yellow-800 rounded-lg">DEFAULT</span>
 				{/if}

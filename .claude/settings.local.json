@@ -1,4 +1,14 @@
 {
+  "permissions": {
+    "allow": [
+      "mcp__time__get_current_time",
+      "mcp__time__convert_time",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__get-library-docs",
+      "Bash(mcp__time__get_current_time timezone=\"Europe/London\")"
+    ],
+    "deny": []
+  },
   "mcpServers": {
     "time": {
       "command": "npx",
@@ -14,15 +24,6 @@
         "@context7/mcp-server"
       ]
     }
-  },
-  "permissions": {
-    "allow": [
-      "mcp__time__get_current_time",
-      "mcp__time__convert_time",
-      "mcp__context7__resolve-library-id",
-      "mcp__context7__get-library-docs"
-    ],
-    "deny": []
   },
   "templateVersion": "6.1.2"
 }

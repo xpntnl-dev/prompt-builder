@@ -1,8 +1,14 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import type { ActionData } from './$types';
+	import { page } from '$app/stores';
+	import type { ActionData, PageData } from './$types';
 
 	export let form: ActionData;
+	export let data: PageData;
+
+	// Get podcast_id from URL if present
+	$: podcast_id = $page.url.searchParams.get('podcast_id');
+	$: selectedPodcast = data.podcast;
 
 	// Helper to get form value from previous submission
 	function getFormValue(fieldName: string): string {
@@ -14,12 +20,20 @@
 	<!-- Header -->
 	<div>
 		<div class="flex items-center space-x-2 text-sm text-gray-500 mb-2">
-			<a href="/podcasts/configs" class="hover:text-gray-700">Podcast Configs</a>
+			<a href="/podcasts" class="hover:text-gray-700">Podcasts</a>
 			<span>→</span>
+			{#if selectedPodcast}
+				<a href="/podcasts/{selectedPodcast.id}" class="hover:text-gray-700">{selectedPodcast.podcast_name}</a>
+				<span>→</span>
+			{/if}
 			<span class="text-gray-900 font-medium">New Configuration</span>
 		</div>
 		<h1 class="text-3xl font-bold text-gray-900">Create New Podcast Configuration</h1>
-		<p class="mt-2 text-gray-600">All settings visible - no scrolling needed</p>
+		{#if selectedPodcast}
+			<p class="mt-2 text-gray-600">For: <span class="font-medium">{selectedPodcast.podcast_name}</span></p>
+		{:else}
+			<p class="mt-2 text-gray-600">Select a podcast and configure all settings</p>
+		{/if}
 	</div>
 
 	<!-- Form -->
@@ -33,6 +47,34 @@
 					<div>
 						<h3 class="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wide">Basic Info</h3>
 						<div class="space-y-3">
+							<!-- Podcast Selection -->
+							{#if selectedPodcast}
+								<!-- Hidden field if podcast is pre-selected -->
+								<input type="hidden" name="podcast_id" value={selectedPodcast.id} />
+								<div class="p-3 bg-blue-50 border border-blue-200 rounded">
+									<div class="text-xs font-medium text-blue-900">Podcast</div>
+									<div class="text-sm text-blue-700">{selectedPodcast.podcast_name}</div>
+								</div>
+							{:else}
+								<!-- Dropdown if no podcast pre-selected -->
+								<div>
+									<label for="podcast_id" class="block text-xs font-medium text-gray-700 mb-1">
+										Podcast <span class="text-red-500">*</span>
+									</label>
+									<select
+										id="podcast_id"
+										name="podcast_id"
+										required
+										class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
+									>
+										<option value="">Select a podcast...</option>
+										{#each data.podcasts as podcast}
+											<option value={podcast.id}>{podcast.podcast_name}</option>
+										{/each}
+									</select>
+								</div>
+							{/if}
+
 							<div>
 								<label for="config_name" class="block text-xs font-medium text-gray-700 mb-1">
 									Config Name <span class="text-red-500">*</span>

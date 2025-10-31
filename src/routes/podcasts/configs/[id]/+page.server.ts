@@ -1,7 +1,7 @@
 import { supabase } from '$lib/server/supabase';
 import { error, fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import type { PodcastConfig } from '$lib/types';
+import type { Podcast, PodcastConfig } from '$lib/types';
 
 export const load: PageServerLoad = async ({ params }) => {
 	const { data: config, error: configError } = await supabase
@@ -14,8 +14,16 @@ export const load: PageServerLoad = async ({ params }) => {
 		throw error(404, 'Podcast configuration not found');
 	}
 
+	// Load parent podcast
+	const { data: podcast } = await supabase
+		.from('podcasts')
+		.select('*')
+		.eq('id', (config as PodcastConfig).podcast_id)
+		.single();
+
 	return {
-		config: config as PodcastConfig
+		config: config as PodcastConfig,
+		podcast: podcast as Podcast | null
 	};
 };
 

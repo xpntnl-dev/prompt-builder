@@ -66,9 +66,23 @@ export interface AssembledPrompt {
 	created_at: string;
 }
 
-// Podcast configuration for Podcastfy integration
+// Podcast parent entity (one-to-many with configs)
+export interface Podcast {
+	id: string;
+	podcast_name: string;
+	podcast_tagline: string | null;
+	description: string | null;
+	default_output_language: string;
+	brand_color: string | null; // Hex color for UI
+	is_active: boolean;
+	created_at: string;
+	updated_at: string;
+}
+
+// Podcast configuration for Podcastfy integration (child of Podcast)
 export interface PodcastConfig {
 	id: string;
+	podcast_id: string; // FK to podcasts table
 	config_name: string;
 	config_type: string; // 'tech_startup', 'music_creative', 'educational', 'storytelling', 'debate', 'custom'
 	description: string | null;
@@ -84,7 +98,7 @@ export interface PodcastConfig {
 	roles_person2: string | null;
 	dialogue_structure: string[] | null; // JSONB array in DB
 
-	// Branding
+	// Branding (now at parent level, but kept for backward compatibility during migration)
 	podcast_name: string | null;
 	podcast_tagline: string | null;
 	output_language: string;

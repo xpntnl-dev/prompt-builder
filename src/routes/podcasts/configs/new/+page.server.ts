@@ -1,9 +1,39 @@
 import { supabase } from '$lib/server/supabase';
-import { fail, redirect } from '@sveltejs/kit';
+import { error, fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
+import type { Podcast } from '$lib/types';
 
-export const load: PageServerLoad = async () => {
-	return {};
+export const load: PageServerLoad = async ({ url }) => {
+	const podcast_id = url.searchParams.get('podcast_id');
+
+	if (!podcast_id) {
+		// Load all podcasts for dropdown selection
+		const { data: podcasts } = await supabase
+			.from('podcasts')
+			.select('id, podcast_name')
+			.eq('is_active', true)
+			.order('podcast_name');
+
+		return {
+			podcasts: (podcasts || []) as Pick<Podcast, 'id' | 'podcast_name'>[]
+		};
+	}
+
+	// Load specific podcast
+	const { data: podcast, error: podcastError } = await supabase
+		.from('podcasts')
+		.select('*')
+		.eq('id', podcast_id)
+		.single();
+
+	if (podcastError || !podcast) {
+		throw error(404, 'Podcast not found');
+	}
+
+	return {
+		podcast: podcast as Podcast,
+		podcasts: []
+	};
 };
 
 export const actions: Actions = {
@@ -11,9 +41,18 @@ export const actions: Actions = {
 		const formData = await request.formData();
 
 		// Extract basic fields
+		const podcast_id = formData.get('podcast_id') as string;
 		const config_name = formData.get('config_name') as string;
 		const config_type = formData.get('config_type') as string;
 		const description = formData.get('description') as string;
+
+		// Validation: podcast_id is required
+		if (!podcast_id) {
+			return fail(400, {
+				error: 'Podcast selection is required',
+				formData: Object.fromEntries(formData)
+			});
+		}
 
 		// Extract LLM fields
 		const llm_provider = formData.get('llm_provider') as string;
@@ -101,6 +140,7 @@ export const actions: Actions = {
 
 		// Build insert object
 		const insertData: any = {
+			podcast_id, // FK to podcasts table
 			config_name: config_name.trim(),
 			config_type,
 			description: description?.trim() || null,
