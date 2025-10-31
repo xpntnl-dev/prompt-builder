@@ -8,3 +8,10 @@ node_modules
 !.env.example
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Docusaurus auto-generated files
+docusaurus-site/.auto-sync-state
+docusaurus-site/auto-sync.pid
+docusaurus-site/logs/
+docusaurus-site/static/data/
+docusaurus-site/docs/context.md
