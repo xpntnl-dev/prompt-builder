@@ -178,33 +178,24 @@
 						<h3 class="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wide">Advanced</h3>
 						<div class="space-y-3">
 							<div>
-								<label for="llm_provider" class="block text-xs font-medium text-gray-700 mb-1">
-									LLM Provider
-								</label>
-								<select
-									id="llm_provider"
-									name="llm_provider"
-									class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
-								>
-									<option value="">Default</option>
-									<option value="openrouter">OpenRouter</option>
-									<option value="anthropic">Anthropic</option>
-									<option value="openai">OpenAI</option>
-								</select>
-							</div>
-
-							<div>
-								<label for="llm_model" class="block text-xs font-medium text-gray-700 mb-1">
+								<label for="model_id" class="block text-xs font-medium text-gray-700 mb-1">
 									LLM Model
 								</label>
-								<input
-									type="text"
-									id="llm_model"
-									name="llm_model"
-									value={getFormValue('llm_model')}
+								<select
+									id="model_id"
+									name="model_id"
 									class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
-									placeholder="anthropic/claude-haiku-4.5"
-								/>
+								>
+									<option value="">Use Default (from base config)</option>
+									{#each data.models as model}
+										<option value={model.id}>
+											{model.display_name} ({model.provider}/{model.model_name})
+										</option>
+									{/each}
+								</select>
+								<p class="mt-1 text-xs text-gray-500">
+									<a href="/llm-models" class="text-blue-600 hover:underline" target="_blank">Manage pinned models →</a>
+								</p>
 							</div>
 
 							<div class="grid grid-cols-2 gap-2">

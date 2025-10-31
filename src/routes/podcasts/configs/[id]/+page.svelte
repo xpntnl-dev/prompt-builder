@@ -1,11 +1,51 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { browser } from '$app/environment';
+	import { onMount } from 'svelte';
 	import type { PageData, ActionData } from './$types';
+	import type { ModelPricingDisplay } from '$lib/types/openrouter';
 
-	export let data: PageData;
-	export let form: ActionData;
+	let { data, form }: { data: PageData; form: ActionData } = $props();
 
-	let showDeleteConfirm = false;
+	let showDeleteConfirm = $state(false);
+	let changingModel = $state(false);
+	let selectedModelId = $state<string>('');
+
+	// LocalStorage key for pinned models (matches LLM Models page)
+	const STORAGE_KEY = 'rvkcat_pinned_models';
+	let pinnedModelIds: Set<string> = new Set();
+
+	// Load pinned models from localStorage
+	onMount(() => {
+		if (browser) {
+			const stored = localStorage.getItem(STORAGE_KEY);
+			if (stored) {
+				try {
+					const parsed = JSON.parse(stored) as string[];
+					pinnedModelIds = new Set(parsed);
+				} catch (e) {
+					console.error('Failed to parse pinned models from localStorage', e);
+				}
+			}
+		}
+	});
+
+	// Get pinned models
+	const pinnedModels = $derived(data.models.filter(m => pinnedModelIds.has(m.id)));
+
+	// Group models by provider
+	function groupModelsByProvider(models: ModelPricingDisplay[]) {
+		const groups = new Map<string, ModelPricingDisplay[]>();
+		for (const model of models) {
+			if (!groups.has(model.provider)) {
+				groups.set(model.provider, []);
+			}
+			groups.get(model.provider)!.push(model);
+		}
+		return groups;
+	}
+
+	const pinnedGroups = $derived(groupModelsByProvider(pinnedModels));
 
 	function formatDate(dateString: string): string {
 		return new Date(dateString).toLocaleDateString('en-GB', {
@@ -75,7 +115,7 @@
 				Edit Configuration
 			</a>
 			<button
-				on:click={() => showDeleteConfirm = true}
+				onclick={() => showDeleteConfirm = true}
 				class="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm font-medium"
 			>
 				Delete
@@ -104,7 +144,7 @@
 				</p>
 				<div class="flex space-x-2 justify-end">
 					<button
-						on:click={() => showDeleteConfirm = false}
+						onclick={() => showDeleteConfirm = false}
 						class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
 					>
 						Cancel
@@ -151,13 +191,94 @@
 		<div class="bg-white rounded-lg shadow p-6">
 			<h2 class="text-lg font-semibold text-gray-900 mb-4">LLM Configuration</h2>
 			<div class="space-y-3">
+				<!-- Model Selector -->
 				<div>
-					<label class="text-sm font-medium text-gray-500">Provider</label>
-					<p class="text-gray-900">{data.config.llm_provider || 'Default'}</p>
-				</div>
-				<div>
-					<label class="text-sm font-medium text-gray-500">Model</label>
-					<p class="text-gray-900">{data.config.llm_model || 'Default'}</p>
+					{#if changingModel}
+						<form
+							method="POST"
+							action="?/updateModel"
+							use:enhance={() => {
+								return async ({ result, update }) => {
+									if (result.type === 'success') {
+										changingModel = false;
+									}
+									await update();
+								};
+							}}
+						>
+							<div class="flex items-center gap-2">
+								<div class="flex-1">
+									<select
+										name="model_id"
+										bind:value={selectedModelId}
+										required
+										class="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+									>
+										<option value="">Select a model...</option>
+
+										<!-- Only show pinned models -->
+										{#if pinnedModels.length > 0}
+											{#each Array.from(pinnedGroups.entries()).sort((a, b) => a[0].localeCompare(b[0])) as [provider, models]}
+												<optgroup label="{provider} ({models.length})">
+													{#each models.sort((a, b) => a.name.localeCompare(b.name)) as model}
+														<option value={model.id}>
+															{model.name}
+														</option>
+													{/each}
+												</optgroup>
+											{/each}
+										{:else}
+											<option disabled>No pinned models - visit LLM Models page</option>
+										{/if}
+									</select>
+								</div>
+								<button
+									type="submit"
+									class="px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+								>
+									Save
+								</button>
+								<button
+									type="button"
+									onclick={() => {
+										changingModel = false;
+										selectedModelId = data.models.find(
+											(m) => m.provider === data.config.llm_provider && m.model_name === data.config.llm_model
+										)?.id || '';
+									}}
+									class="px-3 py-1.5 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors text-sm font-medium"
+								>
+									Cancel
+								</button>
+							</div>
+							<p class="text-xs text-gray-500 mt-1">
+								{#if pinnedModels.length > 0}
+									Showing {pinnedModels.length} pinned model{pinnedModels.length === 1 ? '' : 's'}.
+									<a href="/llm-models" class="text-blue-600 hover:underline">Manage models</a>
+								{:else}
+									<a href="/llm-models" class="text-blue-600 hover:underline">Pin models in LLM Models page</a>
+								{/if}
+							</p>
+						</form>
+					{:else}
+						<div class="flex items-center gap-2">
+							<div class="text-gray-600 text-sm">
+								Model: <span class="font-medium">{#if data.config.llm_provider && data.config.llm_model}{data.config.llm_provider}/{data.config.llm_model}{:else}Default{/if}</span>
+							</div>
+							<button
+								onclick={() => {
+									changingModel = true;
+									selectedModelId = data.models.find(
+										(m) => m.provider === data.config.llm_provider && m.model_name === data.config.llm_model
+									)?.id || '';
+								}}
+								class="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+								title="Change model"
+							>
+								Change
+							</button>
+						</div>
+					{/if}
 				</div>
 				<div>
 					<label class="text-sm font-medium text-gray-500">Creativity Level</label>

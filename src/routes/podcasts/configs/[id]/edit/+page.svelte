@@ -9,6 +9,12 @@
 	function arrayToString(arr: string[] | null): string {
 		return arr ? arr.join(', ') : '';
 	}
+
+	// Find the currently selected model ID
+	$: selectedModelId =
+		data.models.find(
+			(m) => m.provider === data.config.llm_provider && m.model_name === data.config.llm_model
+		)?.id || '';
 </script>
 
 <div class="max-w-4xl mx-auto space-y-6">
@@ -397,35 +403,25 @@
 			<div class="bg-white rounded-lg shadow p-6">
 				<h2 class="text-xl font-semibold text-gray-900 mb-4">7. Advanced Settings</h2>
 				<div class="space-y-4">
-					<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-						<div>
-							<label for="llm_provider" class="block text-sm font-medium text-gray-700 mb-2">
-								LLM Provider
-							</label>
-							<select
-								id="llm_provider"
-								name="llm_provider"
-								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-							>
-								<option value="" selected={!data.config.llm_provider}>Use Default</option>
-								<option value="openrouter" selected={data.config.llm_provider === 'openrouter'}>OpenRouter</option>
-								<option value="anthropic" selected={data.config.llm_provider === 'anthropic'}>Anthropic</option>
-								<option value="openai" selected={data.config.llm_provider === 'openai'}>OpenAI</option>
-							</select>
-						</div>
-
-						<div>
-							<label for="llm_model" class="block text-sm font-medium text-gray-700 mb-2">
-								LLM Model
-							</label>
-							<input
-								type="text"
-								id="llm_model"
-								name="llm_model"
-								value={data.config.llm_model || ''}
-								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-							/>
-						</div>
+					<div>
+						<label for="model_id" class="block text-sm font-medium text-gray-700 mb-2">
+							LLM Model
+						</label>
+						<select
+							id="model_id"
+							name="model_id"
+							class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+						>
+							<option value="">Use Default (from base config)</option>
+							{#each data.models as model}
+								<option value={model.id} selected={model.id === selectedModelId}>
+									{model.display_name} ({model.provider}/{model.model_name})
+								</option>
+							{/each}
+						</select>
+						<p class="mt-1 text-xs text-gray-500">
+							Select from pinned models. <a href="/llm-models" class="text-blue-600 hover:underline" target="_blank">Manage models →</a>
+						</p>
 					</div>
 
 					<div class="flex items-center space-x-6">

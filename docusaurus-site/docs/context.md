@@ -279,3 +279,137 @@ Run SQL in Supabase:
 3. Plan n8n Supabase query integration to replace hardcoded inject-podcast-config.js
 ```
 
+
+### Implement hierarchical podcast data model with parent-child relationship [31Oct2025_1623] - git-commit
+**Summary:** Committed by xpntnl-dev (acbbf1a) - 34 file(s) changed, 7143 insertion(s), 51 deletion(s)
+
+**Commit Message:**
+```
+Implement hierarchical podcast data model with parent-child relationship
+
+USER FEEDBACK: "ok this is very confusing, prodcasts and configurations,
+the hierarchy is not at all clear. we need to see podcasts and
+configurations, a to many relationship between podcasts and configurations."
+
+PROBLEM SOLVED:
+- Previous flat structure had no clear grouping of configs by podcast
+- User couldn't see which configs belonged to which podcast show
+- Navigation was confusing (collapsible menu with single "Configs" submenu)
+
+SOLUTION IMPLEMENTED:
+Created proper one-to-many relationship:
+  Podcasts (parent)
+    ├── XPNTNL Insider
+    │   ├── zen-revok-content-podcast (config)
+    │   └── [future configs...]
+    ├── Revok Records Radio
+    │   └── revok-records-radio (config)
+    └── [other podcasts...]
+
+DATABASE CHANGES:
+1. New 'podcasts' parent table
+   - podcast_name, podcast_tagline, description
+   - brand_color (hex) for visual identification
+   - default_output_language, is_active
+   - RLS policies, updated_at trigger
+
+2. Updated 'podcast_configs' table
+   - Added podcast_id FK → podcasts(id)
+   - CASCADE delete (removing podcast removes all its configs)
+   - Indexed for performance
+   - Kept podcast_name/tagline columns during migration
+
+3. Migration SQL includes:
+   - Table creation with constraints
+   - 5 parent podcast inserts (from existing config data)
+   - Updates to link existing 5 configs to parents
+   - Verification query
+   - Optional cleanup steps
+
+NEW PAGES (8 files):
+Podcasts (parent level):
+  - /podcasts → List all podcasts (card/list view)
+  - /podcasts/{id} → Podcast detail + all its configs
+  - /podcasts/new → Create podcast
+  - /podcasts/{id}/edit → Edit podcast
+
+UPDATED CONFIG PAGES (6 files):
+  - Create: Accepts ?podcast_id param or shows dropdown
+  - Detail/Edit: Load parent podcast, show in breadcrumbs
+  - All pages: Updated breadcrumbs (Podcasts → Podcast → Config)
+
+NAVIGATION SIMPLIFIED:
+  - Removed collapsible Podcasts menu
+  - Simple link: Podcasts → goes to /podcasts list
+  - Removed podcastsExpanded store
+  - Hierarchy now clear through UI flow
+
+TYPESCRIPT TYPES:
+  - Added Podcast interface (9 fields)
+  - Updated PodcastConfig interface (added podcast_id FK)
+
+FEATURES:
+  - Brand colors display throughout UI
+  - Config counts shown on podcast cards
+  - Stats summary (total podcasts, active, total configs)
+  - Cascade delete with warning modal
+  - Podcast selection: pre-filled from parent or dropdown
+  - Complete CRUD for both podcasts and configs
+
+NO BREAKING CHANGES:
+  - n8n workflows still query podcast_configs table same way
+  - Existing configs continue to work
+  - Optional: Can drop redundant columns after verification
+
+FILES MODIFIED/CREATED:
+Database:
+  + .claude/docs/tasks/database/podcasts_hierarchy_schema.sql
+
+Documentation:
+  + .claude/docs/tasks/podcast-integration/HIERARCHY_IMPLEMENTATION.md
+  + .claude/docs/tasks/podcast-integration/QUICK_START_HIERARCHY.md
+
+TypeScript Types:
+  M src/lib/types.ts (added Podcast interface)
+
+New Pages (Podcasts):
+  + src/routes/podcasts/+page.svelte
+  + src/routes/podcasts/+page.server.ts
+  + src/routes/podcasts/new/+page.svelte
+  + src/routes/podcasts/new/+page.server.ts
+  + src/routes/podcasts/[id]/+page.svelte
+  + src/routes/podcasts/[id]/+page.server.ts
+  + src/routes/podcasts/[id]/edit/+page.svelte
+  + src/routes/podcasts/[id]/edit/+page.server.ts
+
+Updated Pages (Configs):
+  M src/routes/podcasts/configs/new/+page.svelte
+  M src/routes/podcasts/configs/new/+page.server.ts
+  M src/routes/podcasts/configs/[id]/+page.svelte
+  M src/routes/podcasts/configs/[id]/+page.server.ts
+  M src/routes/podcasts/configs/[id]/edit/+page.svelte
+  M src/routes/podcasts/configs/[id]/edit/+page.server.ts
+
+Navigation:
+  M src/routes/+layout.svelte
+
+NEXT STEPS:
+1. Run migration SQL in Supabase Editor:
+   .claude/docs/tasks/database/podcasts_hierarchy_schema.sql
+2. Test UI: npm run dev → http://localhost:5173/podcasts
+3. Verify: Should see 5 podcasts, each with 1 config
+4. Optional: Drop redundant columns after verification
+
+TESTING CHECKLIST:
+- [ ] Run migration SQL in Supabase
+- [ ] List shows 5 podcasts with brand colors
+- [ ] Card/list view toggle works
+- [ ] Can create/edit/delete podcast
+- [ ] Can create config from podcast detail (pre-filled)
+- [ ] Can create config with dropdown selection
+- [ ] Breadcrumbs show hierarchy
+- [ ] Cascade delete works
+
+34 files changed, 7143 insertions(+), 51 deletions(-)
+```
+

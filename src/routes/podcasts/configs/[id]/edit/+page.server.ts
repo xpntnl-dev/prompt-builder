@@ -1,7 +1,7 @@
 import { supabase } from '$lib/server/supabase';
 import { error, fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import type { Podcast, PodcastConfig } from '$lib/types';
+import type { Podcast, PodcastConfig, AvailableModel } from '$lib/types';
 
 export const load: PageServerLoad = async ({ params }) => {
 	const { data: config, error: configError } = await supabase
@@ -21,9 +21,22 @@ export const load: PageServerLoad = async ({ params }) => {
 		.eq('id', (config as PodcastConfig).podcast_id)
 		.single();
 
+	// Load available models (pinned/active only)
+	const { data: models, error: modelsError } = await supabase
+		.from('available_models')
+		.select('*')
+		.eq('is_active', true)
+		.order('provider', { ascending: true })
+		.order('model_name', { ascending: true });
+
+	if (modelsError) {
+		console.error('Error loading models:', modelsError);
+	}
+
 	return {
 		config: config as PodcastConfig,
-		podcast: podcast as Podcast | null
+		podcast: podcast as Podcast | null,
+		models: (models || []) as AvailableModel[]
 	};
 };
 
@@ -37,9 +50,25 @@ export const actions: Actions = {
 		const description = formData.get('description') as string;
 
 		// Extract LLM fields
-		const llm_provider = formData.get('llm_provider') as string;
-		const llm_model = formData.get('llm_model') as string;
+		const model_id = formData.get('model_id') as string;
 		const llm_creativity = formData.get('llm_creativity') as string;
+
+		// Get model details if model_id provided
+		let llm_provider: string | null = null;
+		let llm_model: string | null = null;
+
+		if (model_id) {
+			const { data: model, error: modelError } = await supabase
+				.from('available_models')
+				.select('provider, model_name')
+				.eq('id', model_id)
+				.single();
+
+			if (!modelError && model) {
+				llm_provider = model.provider;
+				llm_model = model.model_name;
+			}
+		}
 
 		// Extract conversation fields
 		const roles_person1 = formData.get('roles_person1') as string;

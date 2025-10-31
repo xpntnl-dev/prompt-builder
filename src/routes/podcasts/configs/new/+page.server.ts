@@ -1,10 +1,22 @@
 import { supabase } from '$lib/server/supabase';
 import { error, fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import type { Podcast } from '$lib/types';
+import type { Podcast, AvailableModel } from '$lib/types';
 
 export const load: PageServerLoad = async ({ url }) => {
 	const podcast_id = url.searchParams.get('podcast_id');
+
+	// Load available models (pinned/active only)
+	const { data: models, error: modelsError } = await supabase
+		.from('available_models')
+		.select('*')
+		.eq('is_active', true)
+		.order('provider', { ascending: true })
+		.order('model_name', { ascending: true });
+
+	if (modelsError) {
+		console.error('Error loading models:', modelsError);
+	}
 
 	if (!podcast_id) {
 		// Load all podcasts for dropdown selection
@@ -15,7 +27,8 @@ export const load: PageServerLoad = async ({ url }) => {
 			.order('podcast_name');
 
 		return {
-			podcasts: (podcasts || []) as Pick<Podcast, 'id' | 'podcast_name'>[]
+			podcasts: (podcasts || []) as Pick<Podcast, 'id' | 'podcast_name'>[],
+			models: (models || []) as AvailableModel[]
 		};
 	}
 
@@ -32,7 +45,8 @@ export const load: PageServerLoad = async ({ url }) => {
 
 	return {
 		podcast: podcast as Podcast,
-		podcasts: []
+		podcasts: [],
+		models: (models || []) as AvailableModel[]
 	};
 };
 
@@ -55,9 +69,25 @@ export const actions: Actions = {
 		}
 
 		// Extract LLM fields
-		const llm_provider = formData.get('llm_provider') as string;
-		const llm_model = formData.get('llm_model') as string;
+		const model_id = formData.get('model_id') as string;
 		const llm_creativity = formData.get('llm_creativity') as string;
+
+		// Get model details if model_id provided
+		let llm_provider: string | null = null;
+		let llm_model: string | null = null;
+
+		if (model_id) {
+			const { data: model, error: modelError } = await supabase
+				.from('available_models')
+				.select('provider, model_name')
+				.eq('id', model_id)
+				.single();
+
+			if (!modelError && model) {
+				llm_provider = model.provider;
+				llm_model = model.model_name;
+			}
+		}
 
 		// Extract conversation fields
 		const roles_person1 = formData.get('roles_person1') as string;
