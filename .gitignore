@@ -13,6 +13,4 @@ vite.config.ts.timestamp-*
 docusaurus-site/.auto-sync-state
 docusaurus-site/auto-sync.pid
 docusaurus-site/logs/
-docusaurus-site/static/data/
-docusaurus-site/docs/context.md
 .env.local
