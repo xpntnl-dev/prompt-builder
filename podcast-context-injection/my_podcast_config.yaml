@@ -1,0 +1,200 @@
+# Custom Podcast Configuration
+# This file overrides the default Podcastfy settings
+# Edit any values below to customize your podcast generation
+
+# ============================================================================
+# LLM CONFIGURATION
+# ============================================================================
+
+# (1) PROVIDER
+provider: "openrouter"    # Options: anthropic | openai | openrouter
+
+# (2) MODEL
+# anthropic:
+#   claude-sonnet-4-5-20250929
+#   claude-sonnet-4-20250514
+#
+# openai:
+#   gpt-4o-mini
+#   gpt-4o
+#
+# openrouter:
+#   anthropic/claude-haiku-4.5
+#   anthropic/claude-sonnet-4.5
+#   anthropic/claude-sonnet-4
+#   anthropic/claude-3.7-sonnet
+#   openai/gpt-4.1-mini
+#   openai/gpt-4o-mini
+#   openai/gpt-5-mini
+#   openai/gpt-5-nano
+#   moonshotai/kimi-k2-0905
+
+model: "anthropic/claude-haiku-4.5"
+
+# Fallback models (optional):
+fallback_models:
+  - provider: "openrouter"
+    model: "anthropic/claude-sonnet-4.5"
+  - provider: "openai"
+    model: "gpt-4o-mini"
+
+# ============================================================================
+# CONVERSATION SETTINGS
+# ============================================================================
+
+# Conversation Style
+# Options: engaging, professional, casual, technical, humorous, storytelling,
+#          fast-paced, slow-paced, enthusiastic, calm, educational, entertaining
+conversation_style:
+  - "engaging"
+  - "fast-paced"
+  - "enthusiastic"
+  - "entertaining"
+
+# Speaker Roles
+# Examples: expert, interviewer, main summarizer, questioner, comedian,
+#           storyteller, analyst, skeptic, enthusiast
+roles_person1: "main enthusiastic summarizer/ story teller"
+roles_person2: "enthusiastic questioner/clarifier"
+
+# Dialogue Structure
+# Customize the flow of your podcast
+dialogue_structure:
+  - "Introduction"
+  - "Main Content Summary"
+  - "Conclusion"
+
+# Podcast Branding
+podcast_name: "Zen Bromley Podcast"
+podcast_tagline: "Creative Strategies for Electronic Music Producers"
+
+# Output Language
+# Options: English, Spanish, French, German, etc.
+output_language: "English"
+
+# Engagement Techniques
+# What makes the podcast interesting
+engagement_techniques:
+#  - "rhetorical questions"
+  - "tension injection"
+  - "contrarian positioning"
+  - "Embedded Cliffhangers"
+#  - "Provocative Opening"
+#  - "The Brutal Stat Drop"
+#  - "The Contradiction Reveal"
+#  - "The Credibility Injection"
+
+# Creativity Level (must be float between 0.0 and 1.0 for LLM temperature)
+# 0.0 = Conservative/Factual, 0.5 = Balanced, 1.0 = Maximum Creative/Expressive
+creativity: 0.9
+
+# Custom Instructions
+# Add specific instructions for the AI (e.g., "Focus on practical examples")
+user_instructions: ""
+
+# Long-form Settings (for topic-based generation)
+max_num_chunks: 8    # Maximum discussion rounds
+min_chunk_size: 600  # Minimum characters per round
+
+# Text-to-Speech Configuration
+text_to_speech:
+  # Default TTS provider (openai, elevenlabs, edge, gemini)
+  default_tts_model: "openai"
+
+  # Output directories
+  output_directories:
+    transcripts: "/Users/zenbromley/Documents/Podcastfy/transcripts"
+    audio: "/Users/zenbromley/Documents/Podcastfy/audio"
+
+  # OpenAI Voices (RECOMMENDED)
+  # Options: alloy, echo, fable, onyx, nova, shimmer
+  openai:
+    default_voices:
+      question: "echo"      # First speaker (warm, expressive)
+      answer: "shimmer"     # Second speaker (clear, enthusiastic)
+    model: "tts-1-hd"       # High quality model
+
+  # ElevenLabs Voices (PREMIUM - requires API key)
+  elevenlabs:
+    default_voices:
+      question: "Chris"
+      answer: "Jessica"
+    model: "eleven_multilingual_v2"
+
+  # Edge TTS Voices (FREE)
+  edge:
+    default_voices:
+      question: "en-US-JennyNeural"
+      answer: "en-US-EricNeural"
+
+  # Google Gemini Voices
+  gemini:
+    default_voices:
+      question: "en-US-Journey-D"
+      answer: "en-US-Journey-O"
+
+  # Multi-speaker Gemini
+  geminimulti:
+    default_voices:
+      question: "R"
+      answer: "S"
+      model: "en-US-Studio-MultiSpeaker"
+
+  # Audio Settings
+  audio_format: "mp3"
+  temp_audio_dir: "/Users/zenbromley/Documents/Podcastfy/audio/tmp/"
+  ending_message: "Bye Bye!"
+
+# ============================================================================
+# PRESET EXAMPLES - Uncomment a section below to use a preset style
+# ============================================================================
+
+# PROFESSIONAL STYLE
+# conversation_style: ["professional", "technical", "engaging"]
+# roles_person1: "expert"
+# roles_person2: "interviewer"
+# engagement_techniques: ["data points", "case studies", "industry examples"]
+# openai:
+#   default_voices:
+#     question: "onyx"      # Deep, authoritative
+#     answer: "echo"        # Warm, professional
+
+# CASUAL CONVERSATIONAL
+# conversation_style: ["casual", "humorous", "relaxed"]
+# roles_person1: "friend sharing info"
+# roles_person2: "curious friend"
+# engagement_techniques: ["humor", "personal anecdotes", "relatable examples"]
+# openai:
+#   default_voices:
+#     question: "nova"      # Friendly, approachable
+#     answer: "alloy"       # Conversational
+
+# EDUCATIONAL STYLE
+# conversation_style: ["educational", "clear", "structured"]
+# roles_person1: "teacher"
+# roles_person2: "student asking questions"
+# engagement_techniques: ["step-by-step explanations", "real-world examples", "recap sections"]
+# openai:
+#   default_voices:
+#     question: "echo"      # Clear, patient
+#     answer: "nova"        # Curious, engaged
+
+# STORYTELLING STYLE
+# conversation_style: ["storytelling", "dramatic", "engaging"]
+# roles_person1: "narrator"
+# roles_person2: "commentator"
+# engagement_techniques: ["narrative arcs", "suspense", "vivid descriptions"]
+# openai:
+#   default_voices:
+#     question: "fable"     # Expressive, theatrical
+#     answer: "onyx"        # Deep, dramatic
+
+# DEBATE STYLE
+# conversation_style: ["analytical", "balanced", "thought-provoking"]
+# roles_person1: "proponent"
+# roles_person2: "skeptic"
+# engagement_techniques: ["contrasting viewpoints", "critical analysis", "nuanced discussion"]
+# openai:
+#   default_voices:
+#     question: "echo"      # Measured, thoughtful
+#     answer: "onyx"        # Strong, confident

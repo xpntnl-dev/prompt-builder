@@ -1,0 +1,50 @@
+[
+  {
+    "id": "5abf3b5f-5d9f-40be-8fb2-c6f3f04f7f97",
+    "config_name": "revok-records-radio",
+    "config_type": "music_creative",
+    "description": "High-energy podcast for electronic music production and creative content",
+    "llm_provider": "z-ai",
+    "llm_model": "glm-4.6",
+    "llm_creativity": "0.9",
+    "conversation_style": [
+      "enthusiastic",
+      "fast-paced",
+      "entertaining",
+      "creative"
+    ],
+    "roles_person1": "main enthusiastic summarizer",
+    "roles_person2": "enthusiastic questioner",
+    "dialogue_structure": [
+      "Hook",
+      "Big Idea",
+      "Creative Techniques",
+      "Production Tips",
+      "Sound Examples Discussion",
+      "Wrap-up"
+    ],
+    "podcast_name": "Revok Records Radio",
+    "podcast_tagline": "Electronic music production insights",
+    "output_language": "English",
+    "engagement_techniques": [
+      "tension injection",
+      "contrarian positioning",
+      "rhetorical questions",
+      "producer war stories"
+    ],
+    "user_instructions": "You need to Keep it energetic and producer-focused. Talk about music production, electronic music, and creative techniques. Use industry jargon naturally.",
+    "max_num_chunks": 4,
+    "min_chunk_size": 600,
+    "tts_provider": "openai",
+    "voice_person1": "echo",
+    "voice_person2": "shimmer",
+    "tts_model": "tts-1-hd",
+    "audio_format": "mp3",
+    "ending_message": "Stay Indie Indies! ",
+    "is_active": true,
+    "is_default": false,
+    "created_at": "2025-10-31T15:50:25.948Z",
+    "updated_at": "2025-10-31T18:16:57.036Z",
+    "podcast_id": "3997ed7f-b563-47bc-9422-fb6ff3dbc6f7"
+  }
+]
