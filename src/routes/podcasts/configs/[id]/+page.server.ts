@@ -83,11 +83,26 @@ export const actions: Actions = {
 		return { success: true };
 	},
 
-	updateModel: async ({ request, params }) => {
+	updateLLMAndTTS: async ({ request, params }) => {
 		const formData = await request.formData();
-		const model_id = formData.get('model_id') as string;
 
-		// Get model details if model_id provided
+		// LLM fields
+		const model_id = formData.get('model_id') as string;
+		const creativityStr = formData.get('llm_creativity') as string;
+
+		// TTS fields
+		const tts_provider = formData.get('tts_provider') as string;
+		const tts_model = formData.get('tts_model') as string;
+		const voice_person1 = formData.get('voice_person1') as string;
+		const voice_person2 = formData.get('voice_person2') as string;
+		const audio_format = formData.get('audio_format') as string;
+
+		// Validate required TTS fields
+		if (!tts_provider || !audio_format) {
+			return fail(400, { error: 'TTS provider and audio format are required' });
+		}
+
+		// Parse LLM model details if model_id provided
 		let llm_provider: string | null = null;
 		let llm_model: string | null = null;
 
@@ -112,19 +127,32 @@ export const actions: Actions = {
 			}
 		}
 
-		// Update config
+		// Parse and validate creativity value
+		const llm_creativity = creativityStr ? parseFloat(creativityStr) : null;
+
+		if (llm_creativity !== null && (llm_creativity < 0 || llm_creativity > 1)) {
+			return fail(400, { error: 'Creativity must be between 0.0 and 1.0' });
+		}
+
+		// Update config with all LLM and TTS fields
 		const { error: updateError } = await supabase
 			.from('podcast_configs')
 			.update({
 				llm_provider,
 				llm_model,
+				llm_creativity,
+				tts_provider,
+				tts_model: tts_model || null,
+				voice_person1: voice_person1 || null,
+				voice_person2: voice_person2 || null,
+				audio_format,
 				updated_at: new Date().toISOString()
 			})
 			.eq('id', params.id);
 
 		if (updateError) {
-			console.error('Error updating model:', updateError);
-			return fail(500, { error: `Failed to update model: ${updateError.message}` });
+			console.error('Error updating LLM and TTS configuration:', updateError);
+			return fail(500, { error: `Failed to update configuration: ${updateError.message}` });
 		}
 
 		return { success: true };
@@ -202,34 +230,6 @@ export const actions: Actions = {
 		return { success: true };
 	},
 
-	updateCreativity: async ({ request, params }) => {
-		const formData = await request.formData();
-		const creativityStr = formData.get('llm_creativity') as string;
-
-		// Parse and validate creativity value
-		const llm_creativity = creativityStr ? parseFloat(creativityStr) : null;
-
-		if (llm_creativity !== null && (llm_creativity < 0 || llm_creativity > 1)) {
-			return fail(400, { error: 'Creativity must be between 0.0 and 1.0' });
-		}
-
-		// Update database
-		const { error: updateError } = await supabase
-			.from('podcast_configs')
-			.update({
-				llm_creativity,
-				updated_at: new Date().toISOString()
-			})
-			.eq('id', params.id);
-
-		if (updateError) {
-			console.error('Error updating creativity:', updateError);
-			return fail(500, { error: `Failed to update creativity: ${updateError.message}` });
-		}
-
-		return { success: true };
-	},
-
 	updateConversation: async ({ request, params }) => {
 		const formData = await request.formData();
 		const roles_person1 = formData.get('roles_person1') as string;
@@ -270,40 +270,6 @@ export const actions: Actions = {
 		if (updateError) {
 			console.error('Error updating conversation settings:', updateError);
 			return fail(500, { error: `Failed to update conversation settings: ${updateError.message}` });
-		}
-
-		return { success: true };
-	},
-
-	updateTTS: async ({ request, params }) => {
-		const formData = await request.formData();
-		const tts_provider = formData.get('tts_provider') as string;
-		const tts_model = formData.get('tts_model') as string;
-		const voice_person1 = formData.get('voice_person1') as string;
-		const voice_person2 = formData.get('voice_person2') as string;
-		const audio_format = formData.get('audio_format') as string;
-
-		// Validate required fields
-		if (!tts_provider || !audio_format) {
-			return fail(400, { error: 'TTS provider and audio format are required' });
-		}
-
-		// Update database
-		const { error: updateError } = await supabase
-			.from('podcast_configs')
-			.update({
-				tts_provider,
-				tts_model: tts_model || null,
-				voice_person1: voice_person1 || null,
-				voice_person2: voice_person2 || null,
-				audio_format,
-				updated_at: new Date().toISOString()
-			})
-			.eq('id', params.id);
-
-		if (updateError) {
-			console.error('Error updating TTS configuration:', updateError);
-			return fail(500, { error: `Failed to update TTS configuration: ${updateError.message}` });
 		}
 
 		return { success: true };

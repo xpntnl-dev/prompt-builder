@@ -8,13 +8,11 @@
 	let { data, form }: { data: PageData; form: ActionData } = $props();
 
 	let showDeleteConfirm = $state(false);
-	let changingModel = $state(false);
 	let selectedModelId = $state<string>('');
 	let editingBasic = $state(false);
 	let editingBranding = $state(false);
-	let editingCreativity = $state(false);
+	let editingLLMAndTTS = $state(false);
 	let editingConversation = $state(false);
-	let editingTTS = $state(false);
 	let editingEngagement = $state(false);
 	let editingLongform = $state(false);
 
@@ -430,72 +428,73 @@
 			{/if}
 		</div>
 
-		<!-- LLM Configuration Section -->
+		<!-- LLM & TTS Configuration Section -->
 		<div class="bg-white rounded-lg shadow p-6">
-			<h2 class="text-lg font-semibold text-gray-900 mb-4">LLM Configuration</h2>
-			<div class="space-y-3">
-				<!-- Model Selector -->
-				<div>
-					{#if changingModel}
-						<form
-							method="POST"
-							action="?/updateModel"
-							use:enhance={() => {
-								return async ({ result, update }) => {
-									if (result.type === 'success') {
-										changingModel = false;
-									}
-									await update();
-								};
-							}}
-						>
-							<div class="flex items-center gap-2">
-								<div class="flex-1">
-									<select
-										name="model_id"
-										bind:value={selectedModelId}
-										required
-										class="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-									>
-										<option value="">Select a model...</option>
+			<div class="flex justify-between items-center mb-4">
+				<h2 class="text-lg font-semibold text-gray-900">LLM & TTS Configuration</h2>
+				{#if !editingLLMAndTTS}
+					<button
+						onclick={() => {
+							editingLLMAndTTS = true;
+							// Initialize model selection
+							const fullModelId = data.config.llm_provider && data.config.llm_model
+								? `${data.config.llm_provider}/${data.config.llm_model}`
+								: '';
+							selectedModelId = data.models.find((m) => m.id === fullModelId)?.id || '';
+						}}
+						class="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+					>
+						Edit
+					</button>
+				{/if}
+			</div>
 
-										<!-- Only show pinned models -->
-										{#if pinnedModels.length > 0}
-											{#each Array.from(pinnedGroups.entries()).sort((a, b) => a[0].localeCompare(b[0])) as [provider, models]}
-												<optgroup label="{provider} ({models.length})">
-													{#each models.sort((a, b) => a.name.localeCompare(b.name)) as model}
-														<option value={model.id}>
-															{model.name}
-														</option>
-													{/each}
-												</optgroup>
+			{#if editingLLMAndTTS}
+				<!-- EDIT MODE -->
+				<form
+					method="POST"
+					action="?/updateLLMAndTTS"
+					use:enhance={() => {
+						return async ({ result, update }) => {
+							if (result.type === 'success') {
+								editingLLMAndTTS = false;
+							}
+							await update();
+						};
+					}}
+				>
+					<div class="space-y-4">
+						<!-- LLM Settings Header -->
+						<div class="border-b border-gray-200 pb-2">
+							<h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Language Model</h3>
+						</div>
+
+						<!-- Model Selection -->
+						<div>
+							<label for="model_id" class="block text-sm font-medium text-gray-700 mb-1">
+								LLM Model
+							</label>
+							<select
+								id="model_id"
+								name="model_id"
+								bind:value={selectedModelId}
+								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+							>
+								<option value="">Default</option>
+								{#if pinnedModels.length > 0}
+									{#each Array.from(pinnedGroups.entries()).sort((a, b) => a[0].localeCompare(b[0])) as [provider, models]}
+										<optgroup label="{provider} ({models.length})">
+											{#each models.sort((a, b) => a.name.localeCompare(b.name)) as model}
+												<option value={model.id}>
+													{model.name}
+												</option>
 											{/each}
-										{:else}
-											<option disabled>No pinned models - visit LLM Models page</option>
-										{/if}
-									</select>
-								</div>
-								<button
-									type="submit"
-									class="px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-								>
-									Save
-								</button>
-								<button
-									type="button"
-									onclick={() => {
-										changingModel = false;
-										// Match by constructing the full model ID from provider/model
-										const fullModelId = data.config.llm_provider && data.config.llm_model
-											? `${data.config.llm_provider}/${data.config.llm_model}`
-											: '';
-										selectedModelId = data.models.find((m) => m.id === fullModelId)?.id || '';
-									}}
-									class="px-3 py-1.5 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors text-sm font-medium"
-								>
-									Cancel
-								</button>
-							</div>
+										</optgroup>
+									{/each}
+								{:else}
+									<option disabled>No pinned models - visit LLM Models page</option>
+								{/if}
+							</select>
 							<p class="text-xs text-gray-500 mt-1">
 								{#if pinnedModels.length > 0}
 									Showing {pinnedModels.length} pinned model{pinnedModels.length === 1 ? '' : 's'}.
@@ -504,92 +503,163 @@
 									<a href="/llm-models" class="text-blue-600 hover:underline">Pin models in LLM Models page</a>
 								{/if}
 							</p>
-						</form>
-					{:else}
-						<div class="flex items-center gap-2">
-							<div class="text-gray-600 text-sm">
-								Model: <span class="font-medium">{#if data.config.llm_provider && data.config.llm_model}{data.config.llm_provider}/{data.config.llm_model}{:else}Default{/if}</span>
-							</div>
-							<button
-								onclick={() => {
-									changingModel = true;
-									// Match by constructing the full model ID from provider/model
-									const fullModelId = data.config.llm_provider && data.config.llm_model
-										? `${data.config.llm_provider}/${data.config.llm_model}`
-										: '';
-									selectedModelId = data.models.find((m) => m.id === fullModelId)?.id || '';
-								}}
-								class="text-sm text-blue-600 hover:text-blue-800 hover:underline"
-								title="Change model"
-							>
-								Change
-							</button>
 						</div>
-					{/if}
-				</div>
 
-				<!-- Creativity Level -->
-				<div>
-					{#if editingCreativity}
-						<form
-							method="POST"
-							action="?/updateCreativity"
-							use:enhance={() => {
-								return async ({ result, update }) => {
-									if (result.type === 'success') {
-										editingCreativity = false;
+						<!-- Creativity Level -->
+						<div>
+							<label for="llm_creativity" class="block text-sm font-medium text-gray-700 mb-1">
+								Creativity Level
+							</label>
+							<input
+								type="range"
+								id="llm_creativity"
+								name="llm_creativity"
+								min="0"
+								max="1"
+								step="0.1"
+								value={data.config.llm_creativity ?? 0.7}
+								class="w-full"
+								oninput={(e) => {
+									const val = parseFloat(e.currentTarget.value);
+									const label = e.currentTarget.nextElementSibling;
+									if (label) {
+										const levelText = val < 0.3 ? 'Conservative' : val < 0.7 ? 'Balanced' : 'Creative';
+										label.textContent = `${val.toFixed(1)} / 1.0 (${levelText})`;
 									}
-									await update();
-								};
-							}}
-						>
-							<div class="space-y-2">
-								<label for="llm_creativity" class="block text-sm font-medium text-gray-700">
-									Creativity Level
+								}}
+							/>
+							<p class="text-sm text-gray-600">
+								{data.config.llm_creativity !== null ? `${data.config.llm_creativity.toFixed(1)} / 1.0 (${data.config.llm_creativity < 0.3 ? 'Conservative' : data.config.llm_creativity < 0.7 ? 'Balanced' : 'Creative'})` : '0.7 / 1.0 (Balanced)'}
+							</p>
+						</div>
+
+						<!-- TTS Settings Header -->
+						<div class="border-b border-gray-200 pb-2 pt-2">
+							<h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Text-to-Speech</h3>
+						</div>
+
+						<!-- TTS Provider -->
+						<div>
+							<label for="tts_provider" class="block text-sm font-medium text-gray-700 mb-1">
+								TTS Provider <span class="text-red-500">*</span>
+							</label>
+							<select
+								id="tts_provider"
+								name="tts_provider"
+								value={data.config.tts_provider}
+								required
+								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+							>
+								<option value="openai">OpenAI</option>
+								<option value="elevenlabs">ElevenLabs</option>
+								<option value="google">Google</option>
+								<option value="amazon">Amazon Polly</option>
+								<option value="microsoft">Microsoft Azure</option>
+							</select>
+						</div>
+
+						<!-- TTS Model -->
+						<div>
+							<label for="tts_model" class="block text-sm font-medium text-gray-700 mb-1">
+								TTS Model
+							</label>
+							<input
+								type="text"
+								id="tts_model"
+								name="tts_model"
+								value={data.config.tts_model || ''}
+								placeholder="e.g., tts-1, tts-1-hd"
+								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+							/>
+							<p class="text-xs text-gray-500 mt-1">Optional. Specific model for the provider</p>
+						</div>
+
+						<!-- Speaker Voices -->
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div>
+								<label for="voice_person1" class="block text-sm font-medium text-gray-700 mb-1">
+									Speaker 1 Voice
 								</label>
 								<input
-									type="range"
-									id="llm_creativity"
-									name="llm_creativity"
-									min="0"
-									max="1"
-									step="0.1"
-									value={data.config.llm_creativity ?? 0.7}
-									class="w-full"
-									oninput={(e) => {
-										const val = parseFloat(e.currentTarget.value);
-										const label = e.currentTarget.nextElementSibling;
-										if (label) {
-											const levelText = val < 0.3 ? 'Conservative' : val < 0.7 ? 'Balanced' : 'Creative';
-											label.textContent = `${val.toFixed(1)} / 1.0 (${levelText})`;
-										}
-									}}
+									type="text"
+									id="voice_person1"
+									name="voice_person1"
+									value={data.config.voice_person1 || ''}
+									placeholder="e.g., alloy, echo, shimmer"
+									class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
 								/>
-								<p class="text-sm text-gray-600">
-									{data.config.llm_creativity !== null ? `${data.config.llm_creativity.toFixed(1)} / 1.0 (${data.config.llm_creativity < 0.3 ? 'Conservative' : data.config.llm_creativity < 0.7 ? 'Balanced' : 'Creative'})` : '0.7 / 1.0 (Balanced)'}
-								</p>
 							</div>
 
-							<div class="flex gap-2 mt-3">
-								<button
-									type="submit"
-									class="px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-								>
-									Save
-								</button>
-								<button
-									type="button"
-									onclick={() => editingCreativity = false}
-									class="px-3 py-1.5 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors text-sm font-medium"
-								>
-									Cancel
-								</button>
+							<div>
+								<label for="voice_person2" class="block text-sm font-medium text-gray-700 mb-1">
+									Speaker 2 Voice
+								</label>
+								<input
+									type="text"
+									id="voice_person2"
+									name="voice_person2"
+									value={data.config.voice_person2 || ''}
+									placeholder="e.g., nova, onyx, fable"
+									class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+								/>
 							</div>
-						</form>
-					{:else}
-						<div class="flex items-center gap-2">
-							<div class="text-gray-600 text-sm flex-1">
-								<label class="text-sm font-medium text-gray-500 block mb-1">Creativity Level</label>
+						</div>
+
+						<!-- Audio Format -->
+						<div>
+							<label for="audio_format" class="block text-sm font-medium text-gray-700 mb-1">
+								Audio Format <span class="text-red-500">*</span>
+							</label>
+							<select
+								id="audio_format"
+								name="audio_format"
+								value={data.config.audio_format}
+								required
+								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+							>
+								<option value="mp3">MP3</option>
+								<option value="wav">WAV</option>
+								<option value="flac">FLAC</option>
+								<option value="aac">AAC</option>
+							</select>
+						</div>
+					</div>
+
+					<div class="flex gap-2 mt-4">
+						<button
+							type="submit"
+							class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+						>
+							Save
+						</button>
+						<button
+							type="button"
+							onclick={() => editingLLMAndTTS = false}
+							class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors text-sm font-medium"
+						>
+							Cancel
+						</button>
+					</div>
+				</form>
+			{:else}
+				<!-- VIEW MODE -->
+				<div class="space-y-3">
+					<!-- LLM Settings -->
+					<div class="border-b border-gray-100 pb-3">
+						<h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Language Model</h3>
+						<div class="space-y-2">
+							<div>
+								<label class="text-sm font-medium text-gray-500">Model</label>
+								<p class="text-gray-900">
+									{#if data.config.llm_provider && data.config.llm_model}
+										{data.config.llm_provider}/{data.config.llm_model}
+									{:else}
+										Default
+									{/if}
+								</p>
+							</div>
+							<div>
+								<label class="text-sm font-medium text-gray-500">Creativity Level</label>
 								<p class="text-gray-900">
 									{#if data.config.llm_creativity !== null}
 										{data.config.llm_creativity.toFixed(1)} / 1.0
@@ -601,17 +671,39 @@
 									{/if}
 								</p>
 							</div>
-							<button
-								onclick={() => editingCreativity = true}
-								class="text-sm text-blue-600 hover:text-blue-800 hover:underline self-start"
-								title="Change creativity level"
-							>
-								Change
-							</button>
 						</div>
-					{/if}
+					</div>
+
+					<!-- TTS Settings -->
+					<div class="pt-2">
+						<h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Text-to-Speech</h3>
+						<div class="space-y-2">
+							<div>
+								<label class="text-sm font-medium text-gray-500">TTS Provider</label>
+								<p class="text-gray-900">{data.config.tts_provider}</p>
+							</div>
+							<div>
+								<label class="text-sm font-medium text-gray-500">TTS Model</label>
+								<p class="text-gray-900">{data.config.tts_model || 'Default'}</p>
+							</div>
+							<div class="grid grid-cols-2 gap-4">
+								<div>
+									<label class="text-sm font-medium text-gray-500">Speaker 1 Voice</label>
+									<p class="text-gray-900">{data.config.voice_person1 || 'Default'}</p>
+								</div>
+								<div>
+									<label class="text-sm font-medium text-gray-500">Speaker 2 Voice</label>
+									<p class="text-gray-900">{data.config.voice_person2 || 'Default'}</p>
+								</div>
+							</div>
+							<div>
+								<label class="text-sm font-medium text-gray-500">Audio Format</label>
+								<p class="text-gray-900 uppercase">{data.config.audio_format}</p>
+							</div>
+						</div>
+					</div>
 				</div>
-			</div>
+			{/if}
 		</div>
 
 		<!-- Conversation Settings Section -->
@@ -765,158 +857,6 @@
 			{/if}
 		</div>
 
-		<!-- TTS Configuration Section -->
-		<div class="bg-white rounded-lg shadow p-6">
-			<div class="flex justify-between items-center mb-4">
-				<h2 class="text-lg font-semibold text-gray-900">Text-to-Speech Configuration</h2>
-				{#if !editingTTS}
-					<button
-						onclick={() => editingTTS = true}
-						class="text-sm text-blue-600 hover:text-blue-800 hover:underline"
-					>
-						Edit
-					</button>
-				{/if}
-			</div>
-
-			{#if editingTTS}
-				<!-- EDIT MODE -->
-				<form
-					method="POST"
-					action="?/updateTTS"
-					use:enhance={() => {
-						return async ({ result, update }) => {
-							if (result.type === 'success') {
-								editingTTS = false;
-							}
-							await update();
-						};
-					}}
-				>
-					<div class="space-y-4">
-						<div>
-							<label for="tts_provider" class="block text-sm font-medium text-gray-700 mb-1">
-								TTS Provider <span class="text-red-500">*</span>
-							</label>
-							<select
-								id="tts_provider"
-								name="tts_provider"
-								value={data.config.tts_provider}
-								required
-								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-							>
-								<option value="openai">OpenAI</option>
-								<option value="elevenlabs">ElevenLabs</option>
-								<option value="google">Google</option>
-								<option value="amazon">Amazon Polly</option>
-								<option value="microsoft">Microsoft Azure</option>
-							</select>
-						</div>
-
-						<div>
-							<label for="tts_model" class="block text-sm font-medium text-gray-700 mb-1">
-								TTS Model
-							</label>
-							<input
-								type="text"
-								id="tts_model"
-								name="tts_model"
-								value={data.config.tts_model || ''}
-								placeholder="e.g., tts-1, tts-1-hd"
-								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-							/>
-							<p class="text-xs text-gray-500 mt-1">Optional. Specific model for the provider</p>
-						</div>
-
-						<div>
-							<label for="voice_person1" class="block text-sm font-medium text-gray-700 mb-1">
-								Speaker 1 Voice
-							</label>
-							<input
-								type="text"
-								id="voice_person1"
-								name="voice_person1"
-								value={data.config.voice_person1 || ''}
-								placeholder="e.g., alloy, echo, shimmer"
-								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-							/>
-						</div>
-
-						<div>
-							<label for="voice_person2" class="block text-sm font-medium text-gray-700 mb-1">
-								Speaker 2 Voice
-							</label>
-							<input
-								type="text"
-								id="voice_person2"
-								name="voice_person2"
-								value={data.config.voice_person2 || ''}
-								placeholder="e.g., nova, onyx, fable"
-								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-							/>
-						</div>
-
-						<div>
-							<label for="audio_format" class="block text-sm font-medium text-gray-700 mb-1">
-								Audio Format <span class="text-red-500">*</span>
-							</label>
-							<select
-								id="audio_format"
-								name="audio_format"
-								value={data.config.audio_format}
-								required
-								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-							>
-								<option value="mp3">MP3</option>
-								<option value="wav">WAV</option>
-								<option value="flac">FLAC</option>
-								<option value="aac">AAC</option>
-							</select>
-						</div>
-					</div>
-
-					<div class="flex gap-2 mt-4">
-						<button
-							type="submit"
-							class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-						>
-							Save
-						</button>
-						<button
-							type="button"
-							onclick={() => editingTTS = false}
-							class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors text-sm font-medium"
-						>
-							Cancel
-						</button>
-					</div>
-				</form>
-			{:else}
-				<!-- VIEW MODE -->
-				<div class="space-y-3">
-					<div>
-						<label class="text-sm font-medium text-gray-500">TTS Provider</label>
-						<p class="text-gray-900">{data.config.tts_provider}</p>
-					</div>
-					<div>
-						<label class="text-sm font-medium text-gray-500">TTS Model</label>
-						<p class="text-gray-900">{data.config.tts_model || 'Default'}</p>
-					</div>
-					<div>
-						<label class="text-sm font-medium text-gray-500">Speaker 1 Voice</label>
-						<p class="text-gray-900">{data.config.voice_person1 || 'Default'}</p>
-					</div>
-					<div>
-						<label class="text-sm font-medium text-gray-500">Speaker 2 Voice</label>
-						<p class="text-gray-900">{data.config.voice_person2 || 'Default'}</p>
-					</div>
-					<div>
-						<label class="text-sm font-medium text-gray-500">Audio Format</label>
-						<p class="text-gray-900 uppercase">{data.config.audio_format}</p>
-					</div>
-				</div>
-			{/if}
-		</div>
 
 		<!-- Engagement Section -->
 		<div class="bg-white rounded-lg shadow p-6">
