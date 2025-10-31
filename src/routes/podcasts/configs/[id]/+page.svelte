@@ -373,6 +373,22 @@
 								<option value="Russian">Russian</option>
 							</select>
 						</div>
+
+						<div>
+							<label for="ending_message" class="block text-sm font-medium text-gray-700 mb-1">
+								Ending Message <span class="text-red-500">*</span>
+							</label>
+							<input
+								type="text"
+								id="ending_message"
+								name="ending_message"
+								value={data.config.ending_message}
+								required
+								maxlength="500"
+								placeholder="e.g., Thanks for listening!"
+								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+							/>
+						</div>
 					</div>
 
 					<div class="flex gap-2 mt-4">
@@ -405,6 +421,10 @@
 					<div>
 						<label class="text-sm font-medium text-gray-500">Output Language</label>
 						<p class="text-gray-900">{data.config.output_language}</p>
+					</div>
+					<div>
+						<label class="text-sm font-medium text-gray-500">Ending Message</label>
+						<p class="text-gray-900">{data.config.ending_message}</p>
 					</div>
 				</div>
 			{/if}
@@ -853,22 +873,6 @@
 								<option value="aac">AAC</option>
 							</select>
 						</div>
-
-						<div>
-							<label for="ending_message" class="block text-sm font-medium text-gray-700 mb-1">
-								Ending Message <span class="text-red-500">*</span>
-							</label>
-							<input
-								type="text"
-								id="ending_message"
-								name="ending_message"
-								value={data.config.ending_message}
-								required
-								maxlength="500"
-								placeholder="e.g., Thanks for listening!"
-								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-							/>
-						</div>
 					</div>
 
 					<div class="flex gap-2 mt-4">
@@ -909,10 +913,6 @@
 					<div>
 						<label class="text-sm font-medium text-gray-500">Audio Format</label>
 						<p class="text-gray-900 uppercase">{data.config.audio_format}</p>
-					</div>
-					<div>
-						<label class="text-sm font-medium text-gray-500">Ending Message</label>
-						<p class="text-gray-900">{data.config.ending_message}</p>
 					</div>
 				</div>
 			{/if}

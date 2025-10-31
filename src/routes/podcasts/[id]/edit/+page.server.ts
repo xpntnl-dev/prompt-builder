@@ -24,7 +24,6 @@ export const actions: Actions = {
 		const formData = await request.formData();
 
 		const podcast_name = formData.get('podcast_name') as string;
-		const podcast_tagline = formData.get('podcast_tagline') as string;
 		const description = formData.get('description') as string;
 		const default_output_language = formData.get('default_output_language') as string;
 		const brand_color = formData.get('brand_color') as string;
@@ -42,7 +41,6 @@ export const actions: Actions = {
 			.from('podcasts')
 			.update({
 				podcast_name: podcast_name.trim(),
-				podcast_tagline: podcast_tagline?.trim() || null,
 				description: description?.trim() || null,
 				default_output_language: default_output_language || 'English',
 				brand_color: brand_color || null,

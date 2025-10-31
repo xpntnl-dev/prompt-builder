@@ -171,10 +171,15 @@ export const actions: Actions = {
 		const podcast_name = formData.get('podcast_name') as string;
 		const podcast_tagline = formData.get('podcast_tagline') as string;
 		const output_language = formData.get('output_language') as string;
+		const ending_message = formData.get('ending_message') as string;
 
 		// Validate required fields
 		if (!podcast_name || !output_language) {
 			return fail(400, { error: 'Podcast name and output language are required' });
+		}
+
+		if (!ending_message) {
+			return fail(400, { error: 'Ending message is required' });
 		}
 
 		// Update database
@@ -184,6 +189,7 @@ export const actions: Actions = {
 				podcast_name,
 				podcast_tagline: podcast_tagline || null,
 				output_language,
+				ending_message,
 				updated_at: new Date().toISOString()
 			})
 			.eq('id', params.id);
@@ -276,11 +282,10 @@ export const actions: Actions = {
 		const voice_person1 = formData.get('voice_person1') as string;
 		const voice_person2 = formData.get('voice_person2') as string;
 		const audio_format = formData.get('audio_format') as string;
-		const ending_message = formData.get('ending_message') as string;
 
 		// Validate required fields
-		if (!tts_provider || !audio_format || !ending_message) {
-			return fail(400, { error: 'TTS provider, audio format, and ending message are required' });
+		if (!tts_provider || !audio_format) {
+			return fail(400, { error: 'TTS provider and audio format are required' });
 		}
 
 		// Update database
@@ -292,7 +297,6 @@ export const actions: Actions = {
 				voice_person1: voice_person1 || null,
 				voice_person2: voice_person2 || null,
 				audio_format,
-				ending_message,
 				updated_at: new Date().toISOString()
 			})
 			.eq('id', params.id);
