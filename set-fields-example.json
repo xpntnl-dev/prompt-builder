@@ -1,0 +1,58 @@
+{
+  "description": "Example of correct Set Fields node output for Radical Acceptance Guide parser",
+  "required_fields": {
+    "from_ai_agent": [
+      "output.email_content",
+      "output.email_subject"
+    ],
+    "from_get_system_prompt": [
+      "slogan_number",
+      "slogan_text",
+      "context"
+    ],
+    "from_workflow_metadata": [
+      "workflow_name",
+      "prompt_name",
+      "version_tag",
+      "version_number",
+      "model_provider",
+      "model_name",
+      "is_published"
+    ]
+  },
+  "expected_output_example": [
+    {
+      "output": {
+        "email_content": "First, train in the preliminaries—this fundamental Lojong teaching...",
+        "email_subject": "Building Foundation for Transformation"
+      },
+      "slogan_number": "1",
+      "slogan_text": "First, train in the preliminaries",
+      "context": "My partner is a recovering alcoholic and business partner, dealing with past dysfunction",
+      "workflow_name": "daily-wisdom-agent",
+      "prompt_name": "daily-wisdom-prompt",
+      "version_tag": "v1.0",
+      "version_number": 1,
+      "model_provider": "openrouter",
+      "model_name": "anthropic/claude-sonnet-4.5",
+      "is_published": false
+    }
+  ],
+  "n8n_set_fields_configuration": {
+    "note": "In your Set Fields node, add these mappings:",
+    "fields_to_add": [
+      {
+        "name": "slogan_number",
+        "value": "={{ $('Get System Prompt').item.json.slogan_number }}"
+      },
+      {
+        "name": "slogan_text",
+        "value": "={{ $('Get System Prompt').item.json.slogan_text }}"
+      },
+      {
+        "name": "context",
+        "value": "={{ $('Get System Prompt').item.json.context }}"
+      }
+    ]
+  }
+}
