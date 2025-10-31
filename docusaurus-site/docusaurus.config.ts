@@ -3,8 +3,8 @@ import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
-  title: '[PROJECT_NAME] Documentation',
-  tagline: '[PROJECT_DESCRIPTION] - Technical Documentation',
+  title: 'Prompt Builder Documentation',
+  tagline: 'Powerful SvelteKit application for managing LLM prompts - Technical Documentation',
   favicon: 'img/favicon.ico',
 
   future: {
@@ -14,8 +14,8 @@ const config: Config = {
   url: 'https://your-docusaurus-site.example.com',
   baseUrl: '/',
 
-  organizationName: '[GITHUB_ORG]',
-  projectName: '[PROJECT_NAME]',
+  organizationName: 'xpntnl-dev',
+  projectName: 'prompt-builder',
 
   onBrokenLinks: 'throw',
 
@@ -46,9 +46,9 @@ const config: Config = {
       respectPrefersColorScheme: true,
     },
     navbar: {
-      title: '[PROJECT_NAME] Docs',
+      title: 'Prompt Builder Docs',
       logo: {
-        alt: '[PROJECT_NAME] Logo',
+        alt: 'Prompt Builder Logo',
         src: 'img/logo.svg',
       },
       items: [
@@ -59,7 +59,7 @@ const config: Config = {
           label: 'Documentation',
         },
         {
-          href: 'https://github.com/[GITHUB_ORG]/[PROJECT_NAME]',
+          href: 'https://github.com/xpntnl-dev/prompt-builder',
           label: 'GitHub',
           position: 'right',
         },
@@ -82,12 +82,12 @@ const config: Config = {
           items: [
             {
               label: 'GitHub',
-              href: 'https://github.com/[GITHUB_ORG]/[PROJECT_NAME]',
+              href: 'https://github.com/xpntnl-dev/prompt-builder',
             },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} [PROJECT_NAME]. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} Prompt Builder. Built with Docusaurus.`,
     },
     prism: {
       theme: prismThemes.github,
